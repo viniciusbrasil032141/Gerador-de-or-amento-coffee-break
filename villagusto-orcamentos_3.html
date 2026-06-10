@@ -1,0 +1,1595 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Villa Gusto · Gerador de Orçamentos</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
+:root{
+  --bg:#F7F6F3;--sf:#FFF;--sf2:#F0EDE8;--bd:#E2DDD6;
+  --tx:#1A1814;--tx2:#6B6560;--tx3:#9E9890;
+  --am:#C8860A;--aml:#FDF3DC;--amm:#F5D98A;
+  --gn:#2D7A4F;--gnl:#EBF5EF;
+  --rd:#B83232;--rdl:#FAEAEA;
+  --yl:#8C6A00;--yll:#FEF9E7;
+  --bl:#1A56DB;--bll:#E8F0FE;
+  --r:8px;--sh:0 1px 3px rgba(0,0,0,.06);--shm:0 4px 16px rgba(0,0,0,.10)
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);font-size:14px;line-height:1.5;min-height:100vh}
+
+/* HEADER */
+.hdr{background:var(--tx);color:#fff;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.hdr-brand{display:flex;align-items:center;gap:10px}
+.hdr-dot{width:9px;height:9px;border-radius:50%;background:var(--am)}
+.hdr-title{font-size:15px;font-weight:700;letter-spacing:.02em}
+.hdr-sub{font-size:11px;color:rgba(255,255,255,.4);margin-top:1px}
+.hdr-right{display:flex;align-items:center;gap:12px}
+.hdr-num{font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,.35);background:rgba(255,255,255,.06);padding:4px 10px;border-radius:20px}
+
+/* TABS */
+.tabs{display:flex;gap:0;background:var(--sf);border-bottom:2px solid var(--bd);padding:0 24px;position:sticky;top:57px;z-index:100;box-shadow:var(--sh)}
+.tab{padding:12px 20px;font-size:13px;font-weight:500;color:var(--tx2);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .15s;white-space:nowrap;display:flex;align-items:center;gap:6px}
+.tab:hover{color:var(--tx)}.tab.active{color:var(--am);border-bottom-color:var(--am)}
+.tab-badge{font-size:10px;background:var(--am);color:#fff;border-radius:10px;padding:1px 6px;font-weight:600}
+
+/* MAIN */
+.main{max-width:1400px;margin:0 auto;padding:24px 20px 80px}
+.panel{display:none}.panel.active{display:block}
+
+/* CARDS */
+.card{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);padding:20px 24px;box-shadow:var(--sh);margin-bottom:18px}
+.card-title{font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--tx3);margin-bottom:16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.card-title span{font-size:10px;font-weight:500;padding:2px 8px;border-radius:20px}
+.badge-am{background:var(--aml);color:var(--am)}
+.badge-hy{background:var(--bll);color:var(--bl)}
+.badge-gn{background:var(--gnl);color:var(--gn)}
+
+/* GRID */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+
+/* FORM */
+.fld{display:flex;flex-direction:column;gap:4px}
+label{font-size:11px;font-weight:600;color:var(--tx2);text-transform:uppercase;letter-spacing:.05em}
+.inp{width:100%;padding:9px 12px;border:1.5px solid var(--bd);border-radius:6px;font-size:13px;font-family:'Inter',sans-serif;background:var(--sf);color:var(--tx);outline:none;transition:border .15s}
+.inp:focus{border-color:var(--am)}
+.inp-sm{padding:6px 10px;font-size:12px}
+select.inp{cursor:pointer}
+textarea.inp{resize:vertical;min-height:70px}
+
+/* BTNS */
+.btn{padding:9px 18px;border-radius:var(--r);font-size:13px;font-weight:500;cursor:pointer;border:none;transition:all .15s;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.btn-p{background:var(--am);color:#fff}.btn-p:hover{background:#a86e08}
+.btn-s{background:var(--sf2);color:var(--tx);border:1px solid var(--bd)}.btn-s:hover{background:var(--bd)}
+.btn-d{background:var(--rdl);color:var(--rd);border:1px solid #f0c0c0}.btn-d:hover{background:#f5d0d0}
+.btn-gn{background:var(--gn);color:#fff}.btn-gn:hover{background:#225f3c}
+.btn-bl{background:var(--bl);color:#fff}.btn-bl:hover{background:#1445b0}
+.btn-sm{padding:5px 10px;font-size:12px}
+.btn-icon{padding:6px 9px}
+
+/* KPI */
+.kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:20px}
+.kpi{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);padding:16px;box-shadow:var(--sh);border-left:3px solid var(--bd)}
+.kpi.am{border-left-color:var(--am)}.kpi.gn{border-left-color:var(--gn)}.kpi.rd{border-left-color:var(--rd)}.kpi.bl{border-left-color:var(--bl)}
+.kv{font-family:'DM Mono',monospace;font-size:22px;font-weight:500;line-height:1.1}
+.kv.gn{color:var(--gn)}.kv.rd{color:var(--rd)}.kv.am{color:var(--am)}.kv.bl{color:var(--bl)}
+.kn{font-size:11px;color:var(--tx3);margin-top:3px}.kt{font-size:10px;color:var(--tx3);font-family:'DM Mono',monospace}
+
+/* ITEM CATALOG */
+.cat-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.cat-btn{padding:5px 12px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;border:1.5px solid var(--bd);background:var(--sf);color:var(--tx2);transition:all .15s}
+.cat-btn:hover,.cat-btn.active{background:var(--am);color:#fff;border-color:var(--am)}
+.item-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;max-height:340px;overflow-y:auto;padding-right:4px}
+.item-card{background:var(--sf2);border:1.5px solid var(--bd);border-radius:6px;padding:10px 12px;cursor:pointer;transition:all .15s;position:relative}
+.item-card:hover{border-color:var(--am);background:var(--aml)}
+.item-card.selected{border-color:var(--am);background:var(--aml);box-shadow:0 0 0 2px rgba(200,134,10,.15)}
+.item-card-name{font-size:12px;font-weight:600;color:var(--tx);line-height:1.3;margin-bottom:4px}
+.item-card-price{font-family:'DM Mono',monospace;font-size:12px;color:var(--am);font-weight:500}
+.item-card-cat{font-size:10px;color:var(--tx3)}
+.item-card-check{position:absolute;top:6px;right:8px;font-size:14px;display:none}
+.item-card.selected .item-card-check{display:block}
+.item-search{max-width:280px;margin-bottom:12px}
+
+/* PEDIDO TABLE */
+.tw{overflow-x:auto;border-radius:var(--r);border:1px solid var(--bd)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--sf2);text-align:left;padding:9px 12px;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--tx3);border-bottom:1px solid var(--bd)}
+td{padding:8px 12px;border-bottom:1px solid var(--bd);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--bg)}
+.mono{font-family:'DM Mono',monospace;font-size:12px}
+.td-num{font-family:'DM Mono',monospace;font-size:13px;font-weight:500}
+
+/* TOTAL BAR */
+.total-bar{background:var(--tx);color:#fff;border-radius:var(--r);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;margin-top:16px}
+.total-bar .label{font-size:12px;color:rgba(255,255,255,.5);margin-bottom:2px}
+.total-bar .value{font-family:'DM Mono',monospace;font-size:24px;font-weight:500}
+.total-bar .cmv-pill{padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600}
+.cmv-gn{background:var(--gnl);color:var(--gn)}.cmv-am{background:var(--yll);color:var(--yl)}.cmv-rd{background:var(--rdl);color:var(--rd)}
+.total-actions{display:flex;gap:8px}
+
+/* PDF PREVIEW */
+.pdf-preview{background:#fff;border:1px solid var(--bd);border-radius:var(--r);padding:32px;min-height:400px;font-family:'Inter',sans-serif;position:relative}
+#pdf-output{display:none}
+
+/* HISTORICO */
+.hist-filters{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;margin-bottom:16px}
+.day-grp{margin-bottom:10px}
+.day-hdr{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:var(--sf2);border:1px solid var(--bd);border-radius:var(--r);cursor:pointer;user-select:none;transition:background .15s}
+.day-hdr:hover{background:var(--bd)}
+.day-body{border:1px solid var(--bd);border-top:none;border-radius:0 0 var(--r) var(--r);overflow:hidden}
+.orcamento-row{padding:14px 18px;border-bottom:1px solid var(--bd);background:var(--sf);display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.orcamento-row:last-child{border-bottom:none}
+.orcamento-row:hover{background:var(--bg)}
+.orc-num{font-family:'DM Mono',monospace;font-size:11px;color:var(--tx3);min-width:80px}
+.orc-cliente{font-weight:600;font-size:13px}
+.orc-meta{font-size:12px;color:var(--tx2)}
+.orc-val{font-family:'DM Mono',monospace;font-weight:600;font-size:14px;color:var(--tx)}
+
+/* CHIPS */
+.chip{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500}
+.c-gn{background:var(--gnl);color:var(--gn)}.c-rd{background:var(--rdl);color:var(--rd)}
+.c-yl{background:var(--yll);color:var(--yl)}.c-am{background:var(--aml);color:var(--am)}
+.c-bl{background:var(--bll);color:var(--bl)}
+
+/* ALERTS */
+.alert{padding:10px 14px;border-radius:var(--r);font-size:12px;margin-bottom:12px}
+.alert-hy{background:var(--bll);border:1px solid #93c5fd;color:var(--bl)}
+.alert-warn{background:var(--yll);border:1px solid #f5d98a;color:var(--yl)}
+.alert-ok{background:var(--gnl);border:1px solid #86efac;color:var(--gn)}
+.alert-err{background:var(--rdl);border:1px solid #fca5a5;color:var(--rd)}
+
+/* UPLOAD ZONE */
+.upload-zone{border:2px dashed var(--bd);border-radius:var(--r);padding:20px;text-align:center;cursor:pointer;transition:all .2s;background:var(--bg);position:relative}
+.upload-zone:hover{border-color:var(--am);background:var(--aml)}
+.upload-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+
+/* DIVIDER */
+.sdiv{display:flex;align-items:center;gap:10px;margin:18px 0 14px}
+.sdiv-line{flex:1;height:1px;background:var(--bd)}.sdiv-text{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--tx3)}
+
+/* TOAST */
+.toast-c{position:fixed;bottom:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:7px}
+.toast{padding:10px 16px;border-radius:var(--r);font-size:13px;font-weight:500;box-shadow:var(--shm);animation:si .2s ease;max-width:320px}
+.t-ok{background:var(--gn);color:#fff}.t-err{background:var(--rd);color:#fff}.t-inf{background:var(--tx);color:#fff}
+@keyframes si{from{transform:translateX(16px);opacity:0}to{transform:translateX(0);opacity:1}}
+
+/* MISC */
+.hidden{display:none!important}
+.flex{display:flex}.gap-8{gap:8px}.gap-12{gap:12px}.mt-12{margin-top:12px}.mt-16{margin-top:16px}
+.tc{text-align:center}.tr{text-align:right}
+.empty{text-align:center;padding:40px 20px;color:var(--tx3)}
+.loader{display:inline-block;width:12px;height:12px;border:2px solid var(--bd);border-top-color:var(--am);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* NUMERO PEDIDO */
+.num-box{background:var(--aml);border:1px solid var(--amm);border-radius:var(--r);padding:8px 16px;display:inline-flex;align-items:center;gap:10px;margin-bottom:16px}
+.num-box strong{font-family:'DM Mono',monospace;font-size:18px;color:var(--am)}
+
+/* ITEM QTD INPUT inline */
+.qtd-inp{width:72px;padding:5px 8px;border:1px solid var(--bd);border-radius:4px;font-size:13px;font-family:'DM Mono',monospace;text-align:center}
+.qtd-inp:focus{outline:none;border-color:var(--am)}
+
+/* DESCONTO */
+.desc-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--bd);margin-top:4px}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;display:flex;align-items:center;justify-content:center;padding:20px}
+.modal{background:var(--sf);border-radius:12px;padding:28px;max-width:520px;width:100%;box-shadow:var(--shm)}
+.modal h3{font-size:16px;font-weight:700;margin-bottom:16px}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:20px}
+
+/* PRINT / PDF styles */
+@media print{
+  body{background:#fff!important}
+  .hdr,.tabs,.main,.toast-c,.modal-overlay{display:none!important}
+  #pdf-output{display:block!important;position:static;padding:0;border:none;max-height:none;overflow:visible}
+  #pdf-output table{page-break-inside:auto}
+  #pdf-output tr{page-break-inside:avoid;page-break-after:auto}
+  #pdf-output thead{display:table-header-group}
+  @page{margin:14mm}
+}
+
+/* RESPONSIVE */
+@media(max-width:900px){.kpi-row{grid-template-columns:repeat(3,1fr)}.g2,.g3,.g4{grid-template-columns:1fr}.item-grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr))}}
+@media(max-width:600px){.main{padding:12px 10px 60px}.kpi-row{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-brand">
+    <div class="hdr-dot"></div>
+    <div>
+      <div class="hdr-title">VILLA GUSTO</div>
+      <div class="hdr-sub">Gerador de Orçamentos · Coffee Break</div>
+    </div>
+  </div>
+  <div class="hdr-right">
+    <span class="hdr-num" id="hdrDate"></span>
+    <span class="hdr-num" id="hdrCount"></span>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="swTab('novo',this)">📋 Novo Orçamento</button>
+  <button class="tab" onclick="swTab('historico',this)">📂 Histórico <span class="tab-badge" id="badgeHist">0</span></button>
+  <button class="tab" onclick="swTab('gestao',this)">📊 Gestão & CMV</button>
+  <button class="tab" onclick="swTab('tabelas',this)">💰 Tabelas de Preço</button>
+  <button class="tab" onclick="swTab('custos',this)">🏷️ Custos</button>
+</div>
+
+<div class="main">
+
+<!-- ══════════════════════════════════════════════════════════
+     PANEL: NOVO ORÇAMENTO
+════════════════════════════════════════════════════════════ -->
+<div class="panel active" id="panel-novo">
+
+  <!-- KPIs do orçamento em construção -->
+  <div class="kpi-row">
+    <div class="kpi am"><div class="kv am" id="kv-items">0</div><div class="kn">Itens no pedido</div></div>
+    <div class="kpi"><div class="kv" id="kv-fat">R$ 0,00</div><div class="kn">Subtotal venda</div></div>
+    <div class="kpi"><div class="kv" id="kv-cst">R$ 0,00</div><div class="kn">Custo estimado</div><div class="kt">Interno</div></div>
+    <div class="kpi"><div class="kv" id="kv-cmv">—</div><div class="kn">CMV estimado</div><div class="kt">Meta ≤ 24%</div></div>
+    <div class="kpi"><div class="kv" id="kv-total">R$ 0,00</div><div class="kn">Total com desconto</div></div>
+  </div>
+
+  <!-- NUMERO DO PEDIDO + AVISO HYPERA -->
+  <div class="num-box">
+    <span style="font-size:12px;color:var(--tx2)">Nº do Orçamento:</span>
+    <strong id="orc-number">—</strong>
+    <button class="btn btn-s btn-sm" onclick="gerarNumero()">🔄 Gerar</button>
+  </div>
+  <div id="hy-notice" class="alert alert-hy hidden">🔵 <strong>Cliente HYPERA detectado</strong> — tabela de preços exclusiva aplicada automaticamente.</div>
+
+  <div class="g2" style="margin-bottom:18px">
+    <!-- DADOS DO CLIENTE -->
+    <div class="card">
+      <div class="card-title">Dados do Cliente</div>
+      <div class="g2" style="margin-bottom:12px">
+        <div class="fld">
+          <label>Empresa / Cliente *</label>
+          <input type="text" class="inp" id="cli-empresa" placeholder="Ex: HYPERA, YAMAHA..." oninput="onClienteChange()" autocomplete="off">
+        </div>
+        <div class="fld">
+          <label>Contato</label>
+          <input type="text" class="inp" id="cli-contato" placeholder="Nome do contato">
+        </div>
+      </div>
+      <div class="g2" style="margin-bottom:12px">
+        <div class="fld">
+          <label>Data do Evento *</label>
+          <input type="date" class="inp" id="cli-data">
+        </div>
+        <div class="fld">
+          <label>Horário</label>
+          <input type="time" class="inp" id="cli-horario">
+        </div>
+      </div>
+      <div class="g2" style="margin-bottom:12px">
+        <div class="fld">
+          <label>Nº de Pessoas</label>
+          <input type="number" class="inp" id="cli-pessoas" placeholder="Ex: 25" min="1">
+        </div>
+        <div class="fld">
+          <label>CNPJ (opcional)</label>
+          <input type="text" class="inp" id="cli-cnpj" placeholder="00.000.000/0000-00">
+        </div>
+      </div>
+      <div class="fld" style="margin-bottom:12px">
+        <label>Local / Endereço</label>
+        <input type="text" class="inp" id="cli-local" placeholder="Torre, andar, sala...">
+      </div>
+      <div class="fld" style="margin-bottom:12px">
+        <label>Status do Pedido *</label>
+        <select class="inp" id="cli-status">
+          <option value="pendente">🟡 Orçamento Pendente</option>
+          <option value="aprovado">🟢 Pedido Aprovado</option>
+        </select>
+      </div>
+      <div class="fld">
+        <label>Observações internas (não aparecem no PDF)</label>
+        <textarea class="inp" id="cli-obs" placeholder="Notas internas..."></textarea>
+      </div>
+    </div>
+
+    <!-- SELETOR DE ITENS -->
+    <div class="card">
+      <div class="card-title">Catálogo de Itens <span class="badge-am badge" id="cat-badge">Padrão</span></div>
+      <input type="text" class="inp item-search" placeholder="🔍 Buscar item..." oninput="filterItems(this.value)" id="item-search">
+      <div class="cat-tabs" id="catTabs"></div>
+      <div class="item-grid" id="itemGrid"></div>
+      <div class="mt-12 flex gap-8">
+        <button class="btn btn-s btn-sm" onclick="addItemManual()">+ Item não listado</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ITENS SELECIONADOS -->
+  <div class="card">
+    <div class="card-title">Itens do Orçamento
+      <span style="margin-left:auto;display:flex;gap:8px">
+        <button class="btn btn-s btn-sm" onclick="limparPedido()">🗑 Limpar tudo</button>
+      </span>
+    </div>
+    <div class="tw">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:40%">Item</th>
+            <th>Unid.</th>
+            <th>Qtd</th>
+            <th>Preço Unit.</th>
+            <th>Total Venda</th>
+            <th style="color:var(--tx3)">CMV int.</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="pedidoBody">
+          <tr><td colspan="7" class="tc" style="padding:28px;color:var(--tx3)">Selecione itens no catálogo acima ou adicione manualmente</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- DESCONTO -->
+    <div class="desc-row">
+      <span style="font-size:13px;font-weight:500">Desconto</span>
+      <select class="inp inp-sm" id="desc-tipo" style="width:120px" onchange="recalc()">
+        <option value="none">Sem desconto</option>
+        <option value="pct">Percentual (%)</option>
+        <option value="val">Valor fixo (R$)</option>
+      </select>
+      <input type="number" class="inp inp-sm" id="desc-val" style="width:100px" placeholder="0" min="0" step="0.01" oninput="recalc()">
+      <span class="mono" id="desc-result" style="color:var(--am)"></span>
+      <span style="font-size:12px;color:var(--tx3)">Motivo:</span>
+      <input type="text" class="inp inp-sm" id="desc-motivo" placeholder="Crédito, cortesia..." style="flex:1">
+    </div>
+
+    <!-- TOTAL BAR -->
+    <div class="total-bar" id="totalBar">
+      <div>
+        <div class="label">Valor Total do Orçamento</div>
+        <div class="value" id="total-display">R$ 0,00</div>
+        <div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:2px" id="total-extenso"></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:16px">
+        <div style="text-align:center">
+          <div style="font-size:10px;color:rgba(255,255,255,.4)">CMV do Pedido</div>
+          <div class="cmv-pill" id="cmv-pill">—</div>
+        </div>
+        <div class="total-actions">
+          <button class="btn btn-gn" onclick="gerarPDF()">📄 Gerar PDF</button>
+          <button class="btn btn-p" onclick="salvarOrcamento(true)">💾 Salvar Pedido</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div><!-- /panel-novo -->
+
+
+<!-- ══════════════════════════════════════════════════════════
+     PANEL: HISTÓRICO
+════════════════════════════════════════════════════════════ -->
+<div class="panel" id="panel-historico">
+  <div class="card">
+    <div class="card-title">Filtros de Busca</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end">
+      <div class="fld"><label>De</label><input type="date" class="inp" id="fh-de" style="width:140px" onchange="renderHistorico()"></div>
+      <div class="fld"><label>Até</label><input type="date" class="inp" id="fh-ate" style="width:140px" onchange="renderHistorico()"></div>
+      <div class="fld"><label>Cliente</label><input type="text" class="inp" id="fh-cli" placeholder="Buscar cliente..." style="width:200px" oninput="renderHistorico()"></div>
+      <div class="fld"><label>Status</label>
+        <select class="inp" id="fh-status" style="width:170px" onchange="renderHistorico()">
+          <option value="">Todos</option>
+          <option value="aprovado">🟢 Pedido Aprovado</option>
+          <option value="pendente">🟡 Orçamento Pendente</option>
+          <option value="cancelado">🔴 Cancelado</option>
+        </select>
+      </div>
+      <button class="btn btn-s" onclick="limparFiltrosHist()">Limpar</button>
+      <button class="btn btn-p" style="margin-left:auto" onclick="exportCSV()">⬇ CSV</button>
+    </div>
+  </div>
+  <div id="histContainer"></div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     PANEL: GESTÃO & CMV
+════════════════════════════════════════════════════════════ -->
+<div class="panel" id="panel-gestao">
+  <div class="kpi-row">
+    <div class="kpi am"><div class="kv am" id="g-total">0</div><div class="kn">Orçamentos gerados</div></div>
+    <div class="kpi"><div class="kv" id="g-fat">R$ 0,00</div><div class="kn">Faturamento total</div></div>
+    <div class="kpi"><div class="kv" id="g-cst">R$ 0,00</div><div class="kn">Custo total</div></div>
+    <div class="kpi"><div class="kv" id="g-cmv">—</div><div class="kn">CMV médio</div><div class="kt">Meta ≤ 24%</div></div>
+    <div class="kpi"><div class="kv" id="g-aprovados">0</div><div class="kn">Aprovados</div></div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">CMV por Período</div>
+      <div style="display:flex;gap:8px;margin-bottom:16px">
+        <select class="inp inp-sm" id="g-periodo" style="width:160px" onchange="renderGestao()">
+          <option value="mes">Este mês</option>
+          <option value="ultimo30">Últimos 30 dias</option>
+          <option value="ultimo90">Últimos 90 dias</option>
+          <option value="ano">Este ano</option>
+          <option value="tudo">Tudo</option>
+        </select>
+      </div>
+      <div id="gestao-cmv-chart"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Top Clientes por Volume</div>
+      <div id="gestao-clientes"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Todos os Orçamentos — Visão CMV <span style="font-size:11px;color:var(--tx3);font-weight:400;margin-left:auto">⚠ Informação interna — não compartilhar</span></div>
+    <div class="tw">
+      <table>
+        <thead>
+          <tr>
+            <th>Nº</th><th>Data</th><th>Cliente</th><th>Contato</th>
+            <th>Faturamento</th><th>Custo</th><th>CMV</th><th>Status</th><th></th>
+          </tr>
+        </thead>
+        <tbody id="gestaoBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     PANEL: TABELAS DE PREÇO
+════════════════════════════════════════════════════════════ -->
+<div class="panel" id="panel-tabelas">
+  <div class="g2">
+    <!-- TABELA PADRÃO -->
+    <div class="card">
+      <div class="card-title">Tabela Padrão <span class="badge-am badge">Todos os clientes</span>
+        <span style="margin-left:auto;font-size:12px;color:var(--tx3);font-weight:400" id="menuCount"></span>
+      </div>
+      <div class="alert alert-warn" style="margin-bottom:12px">Esta tabela é aplicada automaticamente para todos os clientes, exceto HYPERA.</div>
+      <!-- Add item -->
+      <div style="display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:8px;margin-bottom:12px;align-items:end">
+        <div class="fld"><label>Item</label><input type="text" class="inp inp-sm" id="mn-item" placeholder="Nome do item"></div>
+        <div class="fld"><label>Categoria</label>
+          <select class="inp inp-sm" id="mn-cat">
+            <option>Bebida</option><option>Salgado</option><option>Doce</option><option>Combo</option><option>Outros</option>
+          </select>
+        </div>
+        <div class="fld"><label>Preço (R$)</label><input type="number" class="inp inp-sm" id="mn-preco" step="0.01" min="0" placeholder="0,00"></div>
+        <button class="btn btn-p btn-sm" onclick="addMenuItem()" style="align-self:flex-end">+ Add</button>
+      </div>
+      <!-- Upload CSV -->
+      <div class="upload-zone" style="margin-bottom:12px">
+        <input type="file" accept=".csv,.json" onchange="importTabela(event,'padrao')">
+        <div style="font-size:12px;color:var(--tx2)">📤 Importar tabela (CSV ou JSON) · <strong>Atualiza preços existentes</strong></div>
+        <div style="font-size:11px;color:var(--tx3);margin-top:2px">Formato CSV: item,categoria,preco</div>
+      </div>
+      <input type="text" class="inp inp-sm" placeholder="Filtrar..." oninput="renderMenu(this.value)" style="max-width:220px;margin-bottom:10px">
+      <div class="tw" style="max-height:420px;overflow-y:auto">
+        <table><thead><tr><th>#</th><th>Item</th><th>Categoria</th><th>Preço</th><th>CMV Est.</th><th></th></tr></thead>
+        <tbody id="menuBody"></tbody></table>
+      </div>
+    </div>
+    <!-- TABELA HYPERA -->
+    <div class="card">
+      <div class="card-title">Tabela HYPERA <span class="badge-hy badge">Exclusivo</span>
+        <span style="margin-left:auto;font-size:12px;color:var(--tx3);font-weight:400" id="hyperaCount"></span>
+      </div>
+      <div class="alert alert-hy" style="margin-bottom:12px">🔵 Aplicada automaticamente quando o cliente contiver "HYPERA" no nome.</div>
+      <div style="display:grid;grid-template-columns:2fr 1fr auto;gap:8px;margin-bottom:12px;align-items:end">
+        <div class="fld"><label>Item</label><input type="text" class="inp inp-sm" id="hy-item" placeholder="Nome do item"></div>
+        <div class="fld"><label>Preço Hypera (R$)</label><input type="number" class="inp inp-sm" id="hy-preco" step="0.01" min="0" placeholder="0,00"></div>
+        <button class="btn btn-p btn-sm" onclick="addHyperaItem()" style="align-self:flex-end">+ Add</button>
+      </div>
+      <div class="upload-zone" style="margin-bottom:12px">
+        <input type="file" accept=".csv,.json" onchange="importTabela(event,'hypera')">
+        <div style="font-size:12px;color:var(--tx2)">📤 Importar tabela Hypera (CSV: item,preco)</div>
+      </div>
+      <input type="text" class="inp inp-sm" placeholder="Filtrar..." oninput="renderHypera(this.value)" style="max-width:220px;margin-bottom:10px">
+      <div class="tw" style="max-height:420px;overflow-y:auto">
+        <table><thead><tr><th>#</th><th>Item</th><th>Preço Hypera</th><th>CMV Est.</th><th></th></tr></thead>
+        <tbody id="hyperaBody"></tbody></table>
+      </div>
+    </div>
+  </div>
+  <!-- CLIENTES ESPECIAIS -->
+  <div class="card">
+    <div class="card-title">Clientes com Tabela Especial</div>
+    <div style="display:flex;gap:10px;align-items:center;margin-bottom:12px">
+      <input type="text" class="inp inp-sm" id="ce-nome" placeholder="Nome do cliente (ex: YAMAHA_VIP)" style="width:260px">
+      <select class="inp inp-sm" id="ce-tabela" style="width:160px">
+        <option value="HYPERA">Tabela Hypera</option>
+        <option value="PADRAO">Tabela Padrão</option>
+      </select>
+      <button class="btn btn-p btn-sm" onclick="addClienteEspecial()">+ Adicionar</button>
+    </div>
+    <div id="clientesEspeciaisBody"></div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     PANEL: CUSTOS
+════════════════════════════════════════════════════════════ -->
+<div class="panel" id="panel-custos">
+  <div class="card">
+    <div class="card-title">Planilha de Custos (uso interno)
+      <span style="margin-left:auto;font-size:12px;color:var(--tx3);font-weight:400" id="custosCount"></span>
+    </div>
+    <div class="alert alert-warn" style="margin-bottom:12px">⚠ Esta área é exclusivamente interna. Os valores de custo nunca aparecem nos PDFs enviados ao cliente.</div>
+    <div style="display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:8px;margin-bottom:12px;align-items:end">
+      <div class="fld"><label>Item</label><input type="text" class="inp inp-sm" id="cs-item" placeholder="Nome do item"></div>
+      <div class="fld"><label>Unidade</label><input type="text" class="inp inp-sm" id="cs-un" placeholder="un, litro, kg..."></div>
+      <div class="fld"><label>Custo Unit. (R$)</label><input type="number" class="inp inp-sm" id="cs-val" step="0.01" min="0" placeholder="0,00"></div>
+      <button class="btn btn-p btn-sm" onclick="addCusto()" style="align-self:flex-end">+ Add</button>
+    </div>
+    <div class="upload-zone" style="max-width:400px;margin-bottom:12px">
+      <input type="file" accept=".csv,.json" onchange="importCustos(event)">
+      <div style="font-size:12px;color:var(--tx2)">📤 Importar custos (CSV: item,unidade,custo)</div>
+    </div>
+    <input type="text" class="inp inp-sm" placeholder="Filtrar..." oninput="renderCustos(this.value)" style="max-width:280px;margin-bottom:10px">
+    <div class="tw">
+      <table><thead><tr><th>#</th><th>Item</th><th>Unidade</th><th>Custo Unit.</th><th>Atualizado</th><th></th></tr></thead>
+      <tbody id="custosBody"></tbody></table>
+    </div>
+  </div>
+</div>
+
+</div><!-- /main -->
+
+<!-- MODAL: ITEM MANUAL -->
+<div class="modal-overlay hidden" id="modal-manual">
+  <div class="modal">
+    <h3>Adicionar Item não listado</h3>
+    <div class="g2" style="margin-bottom:12px">
+      <div class="fld"><label>Nome do item *</label><input type="text" class="inp" id="mm-item" placeholder="Descreva o item"></div>
+      <div class="fld"><label>Categoria</label>
+        <select class="inp" id="mm-cat"><option>Bebida</option><option>Salgado</option><option>Doce</option><option>Combo</option><option>Outros</option></select>
+      </div>
+    </div>
+    <div class="g2" style="margin-bottom:12px">
+      <div class="fld"><label>Unidade</label><input type="text" class="inp" id="mm-un" placeholder="un, litro, kg..." value="un"></div>
+      <div class="fld"><label>Quantidade</label><input type="number" class="inp" id="mm-qtd" value="1" min="0.01" step="0.01"></div>
+    </div>
+    <div class="g2">
+      <div class="fld"><label>Preço de Venda (R$)</label><input type="number" class="inp" id="mm-preco" step="0.01" min="0" placeholder="0,00"></div>
+      <div class="fld"><label>Custo (interno, R$)</label><input type="number" class="inp" id="mm-custo" step="0.01" min="0" placeholder="0,00"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-s" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-p" onclick="confirmManual()">Adicionar ao Pedido</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: PDF PREVIEW -->
+<div class="modal-overlay hidden" id="modal-pdf">
+  <div class="modal" style="max-width:780px;max-height:90vh;overflow-y:auto">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <h3>Prévia do Orçamento</h3>
+      <div class="flex gap-8">
+        <button class="btn btn-s btn-sm" onclick="closeModalPDF()">✕ Fechar</button>
+        <button class="btn btn-gn" onclick="window.print()">🖨️ Imprimir / Salvar PDF</button>
+      </div>
+    </div>
+    <div id="pdf-preview-content" style="background:#fff;border:1px solid #e0e0e0;border-radius:8px;padding:32px;font-family:'Inter',sans-serif"></div>
+  </div>
+</div>
+
+<div class="toast-c" id="toastC"></div>
+
+<!-- ══ HIDDEN PDF OUTPUT (for print) ══ -->
+<div id="pdf-output"></div>
+
+<script>
+// ────────────────────────────────────────────────────────────
+//  ESTADO GLOBAL
+// ────────────────────────────────────────────────────────────
+const SK = 'vg_orc_v1';
+let S = {
+  orcamentos: [],
+  contadorOrc: 1,
+  menu: [],
+  menuHypera: [],
+  custos: [],
+  clientesEspeciais: ['HYPERA']
+};
+
+// PEDIDO EM EDIÇÃO
+let PI = []; // itens [{id,item,un,qtd,vlrV,vlrC,custom}]
+let numOrcAtual = '';
+
+// ────────────────────────────────────────────────────────────
+//  HELPERS
+// ────────────────────────────────────────────────────────────
+const brl  = v => 'R$ ' + Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+const pct  = v => Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1}) + '%';
+const fd   = iso => { if(!iso) return ''; const[y,m,d]=iso.split('-'); return d+'/'+m+'/'+y; };
+const uid  = () => Date.now().toString(36) + Math.random().toString(36).slice(2,5);
+const esc  = s => (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const norm = s => (s||'').toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9 ]/g,'').replace(/\s+/g,' ');
+const r2   = v => Math.round(v*100)/100;
+const cc   = v => v<=24?'gn':v<=28?'am':'rd';
+const chc  = v => v<=24?'c-gn':v<=28?'c-yl':'c-rd';
+
+function isHypera(n) {
+  const nm = norm(n||'');
+  if(nm.includes('hypera')) return true;
+  // Check clientes especiais que usam tabela hypera
+  return S.clientesEspeciais.some(c=>norm(c)===nm && c.tabela==='HYPERA');
+}
+
+function getTab() {
+  const cli = document.getElementById('cli-empresa')?.value||'';
+  return isHypera(cli) ? S.menuHypera : S.menu;
+}
+
+function findP(nome,tab) {
+  const n=norm(nome), t=tab||getTab();
+  let best=null,bestL=0;
+  for(const m of t){const mn=norm(m.item);if(mn===n)return m.preco;if((n.includes(mn)||mn.includes(n))&&mn.length>bestL){bestL=mn.length;best=m.preco;}}
+  return best;
+}
+
+function findC(nome) {
+  const n=norm(nome);
+  let best=null,bestL=0;
+  for(const c of S.custos){const cn=norm(c.item);if(cn===n)return c.custo;if((n.includes(cn)||cn.includes(n))&&cn.length>bestL){bestL=cn.length;best=c.custo;}}
+  return best;
+}
+
+// Persistência
+function ls(){try{const s=localStorage.getItem(SK);if(s){const d=JSON.parse(s);S={...S,...d};}}catch(e){}}
+function ss(){try{localStorage.setItem(SK,JSON.stringify(S));}catch(e){toast('Erro ao salvar dados','err');}}
+
+// Toast
+function toast(msg,type='inf'){
+  const c=document.getElementById('toastC'),t=document.createElement('div');
+  t.className='toast t-'+type;t.textContent=msg;c.appendChild(t);setTimeout(()=>t.remove(),3500);
+}
+
+// Extenso (pt-BR simplificado)
+function extenso(val) {
+  const v = Math.round(val*100)/100;
+  const inteiro = Math.floor(v);
+  const cents = Math.round((v - inteiro)*100);
+  const u1=['','um','dois','três','quatro','cinco','seis','sete','oito','nove','dez','onze','doze','treze','catorze','quinze','dezesseis','dezessete','dezoito','dezenove'];
+  const dez=['','','vinte','trinta','quarenta','cinquenta','sessenta','setenta','oitenta','noventa'];
+  const cent=['','cem','duzentos','trezentos','quatrocentos','quinhentos','seiscentos','setecentos','oitocentos','novecentos'];
+  function n3(n){
+    if(n===0)return '';if(n===100)return 'cem';
+    let r='';
+    const c=Math.floor(n/100);const d=Math.floor((n%100)/10);const u=n%10;
+    if(c)r+=cent[c];
+    const resto=n%100;
+    if(resto){if(r)r+=' e ';if(resto<20)r+=u1[resto];else{r+=dez[d];if(u)r+=' e '+u1[u];}}
+    return r;
+  }
+  function numBR(n){
+    if(n===0)return 'zero';
+    const mi=Math.floor(n/1000000);const mil=Math.floor((n%1000000)/1000);const resto=n%1000;
+    let r='';
+    if(mi){r+=n3(mi)+(mi===1?' milhão':' milhões');}
+    if(mil){if(r)r+=' e ';r+=mil===1?'mil':n3(mil)+' mil';}
+    if(resto){if(r)r+=' e ';r+=n3(resto);}
+    return r||'zero';
+  }
+  let res = numBR(inteiro) + (inteiro===1?' real':' reais');
+  if(cents>0) res += ' e ' + numBR(cents) + (cents===1?' centavo':' centavos');
+  // Capitalize
+  return res.charAt(0).toUpperCase()+res.slice(1);
+}
+
+// ────────────────────────────────────────────────────────────
+//  TABS
+// ────────────────────────────────────────────────────────────
+function swTab(tab,el){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('panel-'+tab).classList.add('active');
+  if(tab==='historico'){renderHistorico();}
+  if(tab==='gestao'){renderGestao();}
+  if(tab==='tabelas'){renderMenu('');renderHypera('');renderClientesEspeciais();}
+  if(tab==='custos'){renderCustos('');}
+}
+
+// ────────────────────────────────────────────────────────────
+//  CATÁLOGO DE ITENS
+// ────────────────────────────────────────────────────────────
+let currentCat = 'Todos';
+let searchTerm = '';
+
+function renderCatalogo() {
+  const tab = getTab();
+  const cats = ['Todos','Bebida','Salgado','Doce','Combo','Outros'];
+  const tabsEl = document.getElementById('catTabs');
+  tabsEl.innerHTML = cats.map(c=>
+    `<button class="cat-btn${c===currentCat?' active':''}" onclick="setCat('${c}')">${c}</button>`
+  ).join('');
+
+  const grid = document.getElementById('itemGrid');
+  const term = norm(searchTerm);
+  const items = tab.filter(m => {
+    const matchCat = currentCat==='Todos' || m.categoria===currentCat;
+    const matchSearch = !term || norm(m.item).includes(term) || norm(m.categoria||'').includes(term);
+    return matchCat && matchSearch;
+  });
+
+  if(!items.length){
+    grid.innerHTML = '<div class="tc" style="padding:20px;color:var(--tx3);font-size:12px">Nenhum item encontrado</div>';
+    return;
+  }
+  const sel = new Set(PI.map(p=>norm(p.item)));
+  grid.innerHTML = items.map(m=>{
+    const isSelected = sel.has(norm(m.item));
+    return `<div class="item-card${isSelected?' selected':''}" onclick="toggleItem('${esc(m.item)}','${m.categoria||'Outros'}')">
+      <div class="item-card-check">✓</div>
+      <div class="item-card-name">${esc(m.item)}</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px">
+        <div class="item-card-cat">${m.categoria||''}</div>
+        <div class="item-card-price">${brl(m.preco)}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function setCat(cat){ currentCat=cat; renderCatalogo(); }
+function filterItems(v){ searchTerm=v; renderCatalogo(); }
+
+function toggleItem(nome,cat) {
+  const tab = getTab();
+  const idx = PI.findIndex(p=>norm(p.item)===norm(nome));
+  if(idx>=0){
+    PI.splice(idx,1);
+  } else {
+    const p = findP(nome,tab)||0;
+    const c = findC(nome)||0;
+    const m = tab.find(t=>norm(t.item)===norm(nome));
+    PI.push({id:uid(),item:nome,un:m?.unidade||'un',qtd:1,vlrV:p,vlrC:c,custom:false});
+  }
+  renderPedido();
+  renderCatalogo();
+  recalc();
+}
+
+// ────────────────────────────────────────────────────────────
+//  PEDIDO TABLE
+// ────────────────────────────────────────────────────────────
+function renderPedido() {
+  const tbody = document.getElementById('pedidoBody');
+  if(!PI.length){
+    tbody.innerHTML='<tr><td colspan="7" class="tc" style="padding:28px;color:var(--tx3)">Selecione itens no catálogo acima</td></tr>';
+    return;
+  }
+  tbody.innerHTML = PI.map((it,i)=>{
+    const total = r2((it.qtd||0)*(it.vlrV||0));
+    const custo = r2((it.qtd||0)*(it.vlrC||0));
+    const cmvIt = total>0?(custo/total*100):0;
+    const cmvCls = cmvIt>0?(cmvIt<=24?'color:var(--gn)':cmvIt<=28?'color:var(--yl)':'color:var(--rd)'):'color:var(--tx3)';
+    return `<tr>
+      <td>
+        <input class="inp inp-sm" value="${esc(it.item)}" style="min-width:160px"
+          oninput="upPI(${i},'item',this.value)" ${it.custom?'':'readonly'} title="${it.custom?'':'Item da tabela — nome fixo'}" >
+      </td>
+      <td><input class="inp inp-sm" value="${esc(it.un||'un')}" style="width:60px" oninput="upPI(${i},'un',this.value)"></td>
+      <td>
+        <input type="number" class="qtd-inp" value="${it.qtd}" min="0.01" step="0.01"
+          oninput="upPI(${i},'qtd',this.value)" style="width:75px">
+      </td>
+      <td>
+        <input type="number" class="inp inp-sm" value="${it.vlrV||''}" placeholder="0,00" step="0.01" style="width:90px"
+          oninput="upPI(${i},'vlrV',this.value)">
+      </td>
+      <td class="td-num">${brl(total)}</td>
+      <td class="mono" style="${cmvCls}">${cmvIt>0?pct(cmvIt):'—'}</td>
+      <td><button class="btn btn-d btn-icon btn-sm" onclick="remPI(${i})">✕</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function upPI(i,f,v){
+  PI[i][f]=f==='item'?v:parseFloat(v)||0;
+  if(f==='item'){
+    const tab=getTab();
+    const p=findP(v,tab);if(p&&!PI[i].vlrV)PI[i].vlrV=p;
+    const c=findC(v);if(c&&!PI[i].vlrC)PI[i].vlrC=c;
+  }
+  renderPedido();
+  recalc();
+}
+function remPI(i){PI.splice(i,1);renderPedido();renderCatalogo();recalc();}
+
+// ────────────────────────────────────────────────────────────
+//  RECALC (KPIs do pedido)
+// ────────────────────────────────────────────────────────────
+function recalc(){
+  let fat=0,cst=0;
+  PI.forEach(it=>{fat+=r2((it.qtd||0)*(it.vlrV||0));cst+=r2((it.qtd||0)*(it.vlrC||0));});
+
+  // Desconto
+  const tipo = document.getElementById('desc-tipo').value;
+  const dVal = parseFloat(document.getElementById('desc-val')?.value)||0;
+  let desconto = 0;
+  if(tipo==='pct' && dVal>0) desconto=r2(fat*dVal/100);
+  if(tipo==='val' && dVal>0) desconto=Math.min(dVal,fat);
+  const descResult = document.getElementById('desc-result');
+  if(descResult) descResult.textContent = desconto>0 ? '– '+brl(desconto) : '';
+  const total = r2(fat - desconto);
+  const cmv = fat>0?(cst/fat*100):0;
+
+  // KPI boxes
+  document.getElementById('kv-items').textContent = PI.length;
+  document.getElementById('kv-fat').textContent = brl(fat);
+  document.getElementById('kv-cst').textContent = brl(cst);
+  const cmvEl = document.getElementById('kv-cmv');
+  cmvEl.textContent = fat>0?pct(cmv):'—';
+  cmvEl.className = 'kv '+(fat>0?cc(cmv):'');
+  document.getElementById('kv-total').textContent = brl(total);
+
+  // Total bar
+  document.getElementById('total-display').textContent = brl(total);
+  document.getElementById('total-extenso').textContent = total>0?extenso(total):'';
+  const pill = document.getElementById('cmv-pill');
+  pill.textContent = fat>0?('CMV '+pct(cmv)):'—';
+  pill.className = 'cmv-pill '+(fat>0?('cmv-'+cc(cmv)):'');
+}
+
+// ────────────────────────────────────────────────────────────
+//  CLIENTE CHANGE
+// ────────────────────────────────────────────────────────────
+function onClienteChange(){
+  const cli = document.getElementById('cli-empresa').value;
+  const hy = isHypera(cli);
+  document.getElementById('hy-notice').classList.toggle('hidden',!hy);
+  document.getElementById('cat-badge').textContent = hy?'Hypera':'Padrão';
+  document.getElementById('cat-badge').className = hy?'badge badge-hy':'badge badge-am';
+  // Re-price existing items with new table
+  const tab = hy?S.menuHypera:S.menu;
+  PI.forEach(it=>{if(!it.custom){const p=findP(it.item,tab);if(p)it.vlrV=p;}});
+  renderPedido();
+  renderCatalogo();
+  recalc();
+}
+
+// ────────────────────────────────────────────────────────────
+//  NUMERO DO ORÇAMENTO
+// ────────────────────────────────────────────────────────────
+function gerarNumero(){
+  const d = new Date();
+  const seq = String(S.contadorOrc).padStart(4,'0');
+  numOrcAtual = `VG-${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}-${seq}`;
+  document.getElementById('orc-number').textContent = numOrcAtual;
+}
+
+// ────────────────────────────────────────────────────────────
+//  ITEM MANUAL (MODAL)
+// ────────────────────────────────────────────────────────────
+function addItemManual(){document.getElementById('modal-manual').classList.remove('hidden');}
+function closeModal(){document.getElementById('modal-manual').classList.add('hidden');}
+function confirmManual(){
+  const item=document.getElementById('mm-item').value.trim();
+  const cat=document.getElementById('mm-cat').value;
+  const un=document.getElementById('mm-un').value||'un';
+  const qtd=parseFloat(document.getElementById('mm-qtd').value)||1;
+  const preco=parseFloat(document.getElementById('mm-preco').value)||0;
+  const custo=parseFloat(document.getElementById('mm-custo').value)||0;
+  if(!item)return toast('Informe o nome do item','err');
+  PI.push({id:uid(),item,un,qtd,vlrV:preco,vlrC:custo,custom:true});
+  renderPedido();renderCatalogo();recalc();closeModal();
+  toast('Item adicionado','ok');
+}
+
+// ────────────────────────────────────────────────────────────
+//  SALVAR ORÇAMENTO
+// ────────────────────────────────────────────────────────────
+function salvarOrcamento(limpar=false){
+  const empresa=document.getElementById('cli-empresa').value.trim();
+  const data=document.getElementById('cli-data').value;
+  if(!empresa)return toast('Informe o cliente','err');
+  if(!data)return toast('Informe a data do evento','err');
+  if(!PI.length)return toast('Adicione ao menos 1 item','err');
+
+  // Build
+  let fat=0,cst=0;
+  const itens=PI.map(it=>{
+    const q=it.qtd||0,v=it.vlrV||0,c=it.vlrC||0;
+    fat+=r2(q*v);cst+=r2(q*c);
+    return{item:it.item,un:it.un||'un',qtd:q,vlrVenda:r2(v),vlrCusto:r2(c),totalVenda:r2(q*v),totalCusto:r2(q*c),custom:it.custom||false};
+  });
+  const tipo=document.getElementById('desc-tipo').value;
+  const dVal=parseFloat(document.getElementById('desc-val')?.value)||0;
+  let desconto=0;
+  if(tipo==='pct'&&dVal>0)desconto=r2(fat*dVal/100);
+  if(tipo==='val'&&dVal>0)desconto=Math.min(dVal,fat);
+  const total=r2(fat-desconto);
+  const cmv=fat>0?(cst/fat*100):0;
+
+  if(!numOrcAtual)gerarNumero();
+  S.contadorOrc++;
+
+  const orc={
+    id:uid(),numero:numOrcAtual,
+    empresa,
+    contato:document.getElementById('cli-contato').value.trim(),
+    data,
+    horario:document.getElementById('cli-horario').value,
+    pessoas:document.getElementById('cli-pessoas').value,
+    cnpj:document.getElementById('cli-cnpj').value.trim(),
+    local:document.getElementById('cli-local').value.trim(),
+    obs:document.getElementById('cli-obs').value.trim(),
+    itens,
+    faturamento:r2(fat),custo:r2(cst),
+    descTipo:tipo,descVal:dVal,desconto:r2(desconto),
+    descMotivo:document.getElementById('desc-motivo').value.trim(),
+    total:r2(total),cmv:r2(cmv),
+    tabelaEspecial:isHypera(empresa)?'HYPERA':null,
+    status:document.getElementById('cli-status').value||'pendente',
+    createdAt:new Date().toISOString()
+  };
+
+  // Check duplicate number
+  const existing = S.orcamentos.findIndex(o=>o.numero===numOrcAtual);
+  if(existing>=0) S.orcamentos[existing]=orc;
+  else S.orcamentos.push(orc);
+
+  ss();
+  updateBadges();
+  const stLabel = orc.status==='aprovado'?'Pedido Aprovado':'Orçamento Pendente';
+  toast(limpar?`Salvo como ${stLabel}!`:`Rascunho atualizado (${stLabel})`,'ok');
+  if(limpar)limparPedido();
+}
+
+function limparPedido(){
+  PI=[];numOrcAtual='';
+  ['cli-empresa','cli-contato','cli-cnpj','cli-local','cli-obs','cli-horario','cli-pessoas','desc-val','desc-motivo'].forEach(id=>{
+    const el=document.getElementById(id);if(el)el.value='';
+  });
+  document.getElementById('cli-data').value=new Date().toISOString().split('T')[0];
+  document.getElementById('desc-tipo').value='none';
+  document.getElementById('cli-status').value='pendente';
+  document.getElementById('orc-number').textContent='—';
+  document.getElementById('hy-notice').classList.add('hidden');
+  renderPedido();renderCatalogo();recalc();gerarNumero();
+}
+
+// ────────────────────────────────────────────────────────────
+//  GERAR PDF
+// ────────────────────────────────────────────────────────────
+function gerarPDF(){
+  if(!PI.length)return toast('Adicione itens antes de gerar o PDF','err');
+  const empresa=document.getElementById('cli-empresa').value.trim()||'—';
+  const contato=document.getElementById('cli-contato').value.trim();
+  const data=document.getElementById('cli-data').value;
+  const horario=document.getElementById('cli-horario').value;
+  const pessoas=document.getElementById('cli-pessoas').value;
+  const local=document.getElementById('cli-local').value.trim();
+  if(!numOrcAtual)gerarNumero();
+
+  let fat=0;
+  const linhas=PI.map(it=>{
+    const tot=r2((it.qtd||0)*(it.vlrV||0));fat+=tot;
+    return `<tr>
+      <td style="padding:8px 12px;border-bottom:1px solid #f0ede8">${esc(it.item)}</td>
+      <td style="padding:8px 12px;border-bottom:1px solid #f0ede8;text-align:center">${it.un||'un'}</td>
+      <td style="padding:8px 12px;border-bottom:1px solid #f0ede8;text-align:center;font-family:monospace">${Number(it.qtd).toLocaleString('pt-BR')}</td>
+      <td style="padding:8px 12px;border-bottom:1px solid #f0ede8;text-align:right;font-family:monospace">${brl(it.vlrV||0)}</td>
+      <td style="padding:8px 12px;border-bottom:1px solid #f0ede8;text-align:right;font-family:monospace;font-weight:600">${brl(tot)}</td>
+    </tr>`;
+  }).join('');
+
+  const tipo=document.getElementById('desc-tipo').value;
+  const dVal=parseFloat(document.getElementById('desc-val')?.value)||0;
+  const dMotivo=document.getElementById('desc-motivo').value.trim();
+  let desconto=0;
+  if(tipo==='pct'&&dVal>0)desconto=r2(fat*dVal/100);
+  if(tipo==='val'&&dVal>0)desconto=Math.min(dVal,fat);
+  const total=r2(fat-desconto);
+  const hy=isHypera(empresa);
+
+  const html=`
+  <div style="font-family:'Inter',sans-serif;color:#1a1814;max-width:700px;margin:0 auto">
+    <!-- HEADER -->
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;padding-bottom:16px;border-bottom:2px solid #c8860a">
+      <div>
+        <div style="font-size:24px;font-weight:800;color:#1a1814;letter-spacing:.02em">VILLA GUSTO</div>
+        <div style="font-size:11px;color:#9e9890;margin-top:2px">Café da Manhã · Evento · Coffee Break · Brunch · Almoço · Coquetel</div>
+        <div style="font-size:11px;color:#9e9890">Av. Magalhães de Castro, 4800 · Torre 3 · Piso Térreo · São Paulo – SP</div>
+        <div style="font-size:11px;color:#9e9890">Tel: (11) 99726-1488 · eventos@villagusto.com.br</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:10px;color:#9e9890;text-transform:uppercase;letter-spacing:.08em">Orçamento</div>
+        <div style="font-family:monospace;font-size:16px;font-weight:700;color:#c8860a">${numOrcAtual}</div>
+        <div style="font-size:11px;color:#9e9890;margin-top:2px">Emitido: ${fd(new Date().toISOString().split('T')[0])}</div>
+        ${hy?`<div style="margin-top:6px;background:#e8f0fe;color:#1a56db;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600;display:inline-block">🔵 TABELA EXCLUSIVA HYPERA</div>`:''}
+      </div>
+    </div>
+
+    <!-- DADOS DO EVENTO -->
+    <div style="background:#f7f6f3;border-radius:8px;padding:16px 20px;margin-bottom:20px">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#9e9890;margin-bottom:12px">Dados do Evento</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+        <div><div style="font-size:10px;color:#9e9890">Empresa</div><div style="font-weight:700;font-size:14px">${esc(empresa)}</div></div>
+        ${contato?`<div><div style="font-size:10px;color:#9e9890">Contato</div><div style="font-weight:600;font-size:13px">${esc(contato)}</div></div>`:''}
+        <div><div style="font-size:10px;color:#9e9890">Data do Evento</div><div style="font-weight:600;font-size:13px">${fd(data)||'—'}</div></div>
+        ${horario?`<div><div style="font-size:10px;color:#9e9890">Horário</div><div style="font-size:13px">${horario}</div></div>`:''}
+        ${pessoas?`<div><div style="font-size:10px;color:#9e9890">Nº de Pessoas</div><div style="font-size:13px">${pessoas}</div></div>`:''}
+        ${local?`<div style="grid-column:1/-1"><div style="font-size:10px;color:#9e9890">Local</div><div style="font-size:13px">${esc(local)}</div></div>`:''}
+      </div>
+    </div>
+
+    <!-- ITENS -->
+    <div style="margin-bottom:16px">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#9e9890;margin-bottom:10px">Composição do Serviço</div>
+      <table style="width:100%;border-collapse:collapse;font-size:13px">
+        <thead>
+          <tr style="background:#f0ede8">
+            <th style="padding:9px 12px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#9e9890">Item</th>
+            <th style="padding:9px 12px;text-align:center;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#9e9890">Unid.</th>
+            <th style="padding:9px 12px;text-align:center;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#9e9890">Qtd</th>
+            <th style="padding:9px 12px;text-align:right;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#9e9890">Preço Unit.</th>
+            <th style="padding:9px 12px;text-align:right;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#9e9890">Total</th>
+          </tr>
+        </thead>
+        <tbody>${linhas}</tbody>
+      </table>
+    </div>
+
+    <!-- TOTAIS -->
+    ${desconto>0?`<div style="display:flex;justify-content:flex-end;margin-bottom:6px">
+      <div style="font-size:12px;color:#9e9890">Subtotal: <span style="font-family:monospace">${brl(fat)}</span></div>
+    </div>
+    <div style="display:flex;justify-content:flex-end;margin-bottom:6px">
+      <div style="font-size:12px;color:#b83232">Desconto${dMotivo?' ('+esc(dMotivo)+')':''}: <span style="font-family:monospace">– ${brl(desconto)}</span></div>
+    </div>`:''}
+    <div style="background:#1a1814;color:#fff;border-radius:8px;padding:16px 20px;display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <div style="font-size:11px;color:rgba(255,255,255,.5)">VALOR TOTAL</div>
+        <div style="font-family:monospace;font-size:26px;font-weight:600">${brl(total)}</div>
+      </div>
+      <div style="text-align:right;font-size:12px;color:rgba(255,255,255,.5);max-width:320px">
+        ${extenso(total)}
+      </div>
+    </div>
+
+    <!-- INCLUSOS -->
+    <div style="margin-top:16px;font-size:12px;color:#6b6560;font-style:italic">
+      <em>Inclusos: louças, utensílios para distribuição, toalhas e mão de obra para montagem e retirada do serviço.</em>
+    </div>
+
+    <!-- FOOTER -->
+    <div style="margin-top:24px;padding-top:16px;border-top:1px solid #e2ddd6;display:flex;justify-content:space-between;align-items:flex-end">
+      <div>
+        <div style="font-size:11px;font-weight:600;color:#1a1814">Julia Hohagen — Eventos Villa Gusto</div>
+        <div style="font-size:11px;color:#9e9890">(11) 99726-1488 · eventos@villagusto.com.br</div>
+        <div style="font-size:11px;color:#9e9890">www.villagusto.com.br</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:10px;color:#9e9890">Este orçamento é válido por 5 dias úteis.</div>
+      </div>
+    </div>
+  </div>`;
+
+  document.getElementById('pdf-preview-content').innerHTML=html;
+  document.getElementById('pdf-output').innerHTML=html;
+  document.getElementById('modal-pdf').classList.remove('hidden');
+  // Auto-save mantendo o status selecionado
+  salvarOrcamento(false);
+}
+
+function closeModalPDF(){document.getElementById('modal-pdf').classList.add('hidden');}
+
+// ────────────────────────────────────────────────────────────
+//  HISTÓRICO
+// ────────────────────────────────────────────────────────────
+function renderHistorico(){
+  const cont=document.getElementById('histContainer');
+  const fc=(document.getElementById('fh-cli')?.value||'').toLowerCase();
+  const fd2=document.getElementById('fh-de')?.value||'';
+  const fa=document.getElementById('fh-ate')?.value||'';
+  const fs=document.getElementById('fh-status')?.value||'';
+
+  let orcs=[...S.orcamentos].filter(o=>{
+    const stNorm = o.status==='rascunho'?'pendente':o.status;
+    if(fc&&!o.empresa.toLowerCase().includes(fc))return false;
+    if(fd2&&o.data<fd2)return false;
+    if(fa&&o.data>fa)return false;
+    if(fs&&stNorm!==fs)return false;
+    return true;
+  });
+
+  if(!orcs.length){cont.innerHTML='<div class="empty">📋 Nenhum orçamento encontrado</div>';return;}
+
+  // Group by day
+  const byDay={};
+  orcs.sort((a,b)=>b.data.localeCompare(a.data)).forEach(o=>{if(!byDay[o.data])byDay[o.data]=[];byDay[o.data].push(o);});
+
+  let html='';
+  Object.keys(byDay).sort().reverse().forEach(day=>{
+    const de=byDay[day];
+    const df=de.reduce((s,o)=>s+o.total,0);
+    html+=`<div class="day-grp">
+      <div class="day-hdr" onclick="togDay('h-${day}')">
+        <div style="display:flex;align-items:center;gap:14px">
+          <strong style="font-size:13px">📅 ${fd(day)}</strong>
+          <span style="font-size:12px;color:var(--tx2)">${de.length} orçamento${de.length>1?'s':''}</span>
+          <span style="font-family:'DM Mono',monospace;font-size:13px;font-weight:600">${brl(df)}</span>
+        </div>
+        <span style="color:var(--tx3);font-size:11px">▼</span>
+      </div>
+      <div class="day-body hidden" id="h-${day}">`;
+    de.forEach(o=>{
+      const stNorm = o.status==='rascunho'?'pendente':o.status;
+      const stMap = {
+        'aprovado':{label:'🟢 Pedido Aprovado',cls:'c-gn'},
+        'pendente':{label:'🟡 Orçamento Pendente',cls:'c-yl'},
+        'cancelado':{label:'🔴 Cancelado',cls:'c-rd'}
+      };
+      const st = stMap[stNorm]||stMap['pendente'];
+      const cmvCls=o.cmv>0?chc(o.cmv):'';
+      // Botões de mudança de status conforme a jornada
+      let statusBtns='';
+      if(stNorm==='pendente'){
+        statusBtns=`<button class="btn btn-gn btn-sm" onclick="setStatus('${o.id}','aprovado')" title="Marcar como Pedido Aprovado">✓ Aprovar</button>
+          <button class="btn btn-d btn-sm" onclick="setStatus('${o.id}','cancelado')" title="Cancelar pedido">🚫 Cancelar</button>`;
+      } else if(stNorm==='aprovado'){
+        statusBtns=`<button class="btn btn-s btn-sm" onclick="setStatus('${o.id}','pendente')" title="Voltar para Orçamento Pendente">↩ Pendente</button>
+          <button class="btn btn-d btn-sm" onclick="setStatus('${o.id}','cancelado')" title="Cancelar pedido">🚫 Cancelar</button>`;
+      } else {
+        statusBtns=`<button class="btn btn-s btn-sm" onclick="setStatus('${o.id}','pendente')" title="Reativar como pendente">↩ Reativar</button>`;
+      }
+      html+=`<div class="orcamento-row"${stNorm==='cancelado'?' style="opacity:.55"':''}>
+        <div class="orc-num">${o.numero}</div>
+        <div>
+          <div class="orc-cliente">${esc(o.empresa)}${o.tabelaEspecial==='HYPERA'?' <span class="chip c-bl" style="font-size:10px">🔵 Hypera</span>':''}</div>
+          <div class="orc-meta">${o.contato?esc(o.contato)+' · ':''}${o.pessoas?o.pessoas+' pessoas · ':''}${esc(o.local||'')}</div>
+        </div>
+        <div><span class="chip ${st.cls}" style="font-weight:600">${st.label}</span>${o.cmv>0?` <span class="chip ${cmvCls}" title="CMV Interno">CMV ${pct(o.cmv)}</span>`:''}</div>
+        <div class="orc-val">${brl(o.total)}</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          ${statusBtns}
+          <button class="btn btn-s btn-sm" onclick="reabrir('${o.id}')" title="Editar e ajustar informações">✏ Editar</button>
+          <button class="btn btn-s btn-sm" onclick="verPDF('${o.id}')">📄 PDF</button>
+          <button class="btn btn-s btn-sm" onclick="clonar('${o.id}')">⧉ Clonar</button>
+          <button class="btn btn-d btn-sm" onclick="deletarOrc('${o.id}')" title="Excluir permanentemente">✕</button>
+        </div>
+      </div>`;
+    });
+    html+=`</div></div>`;
+  });
+  cont.innerHTML=html;
+}
+
+function togDay(id){const el=document.getElementById(id);if(el)el.classList.toggle('hidden');}
+
+function setStatus(id,novoStatus){
+  const o=S.orcamentos.find(x=>x.id===id);if(!o)return;
+  if(novoStatus==='cancelado' && !confirm(`Cancelar o pedido ${o.numero} (${o.empresa})?`))return;
+  o.status=novoStatus;
+  o.statusUpdatedAt=new Date().toISOString();
+  ss();renderHistorico();updateBadges();
+  const labels={'aprovado':'🟢 Pedido Aprovado','pendente':'🟡 Orçamento Pendente','cancelado':'🔴 Cancelado'};
+  toast(`${o.numero} → ${labels[novoStatus]}`,'ok');
+}
+
+function reabrir(id){
+  const o=S.orcamentos.find(x=>x.id===id);if(!o)return;
+  // Populate form
+  document.getElementById('cli-empresa').value=o.empresa;
+  document.getElementById('cli-contato').value=o.contato||'';
+  document.getElementById('cli-data').value=o.data;
+  document.getElementById('cli-horario').value=o.horario||'';
+  document.getElementById('cli-pessoas').value=o.pessoas||'';
+  document.getElementById('cli-cnpj').value=o.cnpj||'';
+  document.getElementById('cli-local').value=o.local||'';
+  document.getElementById('cli-obs').value=o.obs||'';
+  document.getElementById('desc-tipo').value=o.descTipo||'none';
+  document.getElementById('desc-val').value=o.descVal||'';
+  document.getElementById('desc-motivo').value=o.descMotivo||'';
+  document.getElementById('cli-status').value=(o.status==='rascunho'||o.status==='cancelado')?'pendente':(o.status||'pendente');
+  numOrcAtual=o.numero;
+  document.getElementById('orc-number').textContent=numOrcAtual;
+  PI=o.itens.map(it=>({id:uid(),item:it.item,un:it.un||'un',qtd:it.qtd,vlrV:it.vlrVenda,vlrC:it.vlrCusto,custom:it.custom||false}));
+  onClienteChange();renderPedido();renderCatalogo();recalc();
+  swTab('novo',document.querySelector('.tab'));
+  document.querySelector('.tab').click();
+  toast('Orçamento carregado para edição','inf');
+}
+
+function verPDF(id){
+  const o=S.orcamentos.find(x=>x.id===id);if(!o)return;
+  // Re-populate silently and generate
+  numOrcAtual=o.numero;
+  document.getElementById('cli-empresa').value=o.empresa;
+  document.getElementById('cli-contato').value=o.contato||'';
+  document.getElementById('cli-data').value=o.data;
+  document.getElementById('cli-horario').value=o.horario||'';
+  document.getElementById('cli-pessoas').value=o.pessoas||'';
+  document.getElementById('cli-local').value=o.local||'';
+  document.getElementById('desc-tipo').value=o.descTipo||'none';
+  document.getElementById('desc-val').value=o.descVal||'';
+  document.getElementById('desc-motivo').value=o.descMotivo||'';
+  PI=o.itens.map(it=>({id:uid(),item:it.item,un:it.un||'un',qtd:it.qtd,vlrV:it.vlrVenda,vlrC:it.vlrCusto}));
+  gerarPDF();
+}
+
+function clonar(id){
+  const o=S.orcamentos.find(x=>x.id===id);if(!o)return;
+  reabrir(id);
+  gerarNumero(); // New number
+  toast('Orçamento clonado — novo número gerado','inf');
+}
+
+function deletarOrc(id){
+  if(!confirm('Excluir este orçamento?'))return;
+  S.orcamentos=S.orcamentos.filter(o=>o.id!==id);
+  ss();updateBadges();renderHistorico();toast('Excluído','inf');
+}
+
+function limparFiltrosHist(){
+  ['fh-de','fh-ate','fh-cli'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('fh-status').value='';
+  renderHistorico();
+}
+
+// ────────────────────────────────────────────────────────────
+//  GESTÃO & CMV
+// ────────────────────────────────────────────────────────────
+function renderGestao(){
+  const periodo=document.getElementById('g-periodo')?.value||'tudo';
+  const now=new Date();
+  let orcs=S.orcamentos.filter(o=>o.status!=='cancelado');
+
+  if(periodo==='mes'){
+    const m=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+    orcs=orcs.filter(o=>o.data.startsWith(m));
+  } else if(periodo==='ultimo30'){
+    const d30=new Date(now-30*864e5).toISOString().split('T')[0];
+    orcs=orcs.filter(o=>o.data>=d30);
+  } else if(periodo==='ultimo90'){
+    const d90=new Date(now-90*864e5).toISOString().split('T')[0];
+    orcs=orcs.filter(o=>o.data>=d90);
+  } else if(periodo==='ano'){
+    orcs=orcs.filter(o=>o.data.startsWith(now.getFullYear()+''));
+  }
+
+  const fat=orcs.reduce((s,o)=>s+o.total,0);
+  const cst=orcs.reduce((s,o)=>s+o.custo,0);
+  const cmv=fat>0?(cst/fat*100):0;
+  const aprov=orcs.filter(o=>o.status==='aprovado').length;
+
+  document.getElementById('g-total').textContent=S.orcamentos.length;
+  document.getElementById('g-fat').textContent=brl(fat);
+  document.getElementById('g-cst').textContent=brl(cst);
+  const cmvEl=document.getElementById('g-cmv');
+  cmvEl.textContent=fat>0?pct(cmv):'—';
+  cmvEl.className='kv '+(fat>0?cc(cmv):'');
+  document.getElementById('g-aprovados').textContent=aprov;
+
+  // CMV chart (simple bars)
+  const byMonth={};
+  orcs.forEach(o=>{
+    const m=o.data.slice(0,7);
+    if(!byMonth[m])byMonth[m]={fat:0,cst:0};
+    byMonth[m].fat+=o.total;byMonth[m].cst+=o.custo;
+  });
+  const months=Object.keys(byMonth).sort().slice(-6);
+  const chartEl=document.getElementById('gestao-cmv-chart');
+  if(months.length){
+    chartEl.innerHTML=months.map(m=>{
+      const {fat:f,cst:c}=byMonth[m];
+      const cmvM=f>0?(c/f*100):0;
+      const cls=cc(cmvM);
+      const [y,mo]=m.split('-');
+      const label=new Date(y,mo-1).toLocaleDateString('pt-BR',{month:'short',year:'2-digit'});
+      return `<div style="margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px">
+          <span style="font-weight:600">${label}</span>
+          <span style="font-family:monospace">${brl(f)} · <span style="color:var(--${cls})">${pct(cmvM)}</span></span>
+        </div>
+        <div style="background:var(--bd);border-radius:4px;height:8px">
+          <div style="background:var(--${cls});height:8px;border-radius:4px;width:${Math.min(cmvM/40*100,100)}%"></div>
+        </div>
+      </div>`;
+    }).join('');
+  } else {
+    chartEl.innerHTML='<div style="color:var(--tx3);font-size:12px">Sem dados no período</div>';
+  }
+
+  // Top clientes
+  const byCli={};
+  orcs.forEach(o=>{if(!byCli[o.empresa])byCli[o.empresa]={fat:0,cnt:0};byCli[o.empresa].fat+=o.total;byCli[o.empresa].cnt++;});
+  const topCli=Object.entries(byCli).sort((a,b)=>b[1].fat-a[1].fat).slice(0,8);
+  const cliEl=document.getElementById('gestao-clientes');
+  cliEl.innerHTML=topCli.length?topCli.map(([c,d])=>`
+    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--bd);font-size:13px">
+      <span style="font-weight:500">${esc(c)} <span style="font-size:11px;color:var(--tx3)">(${d.cnt})</span></span>
+      <span style="font-family:monospace;font-weight:600">${brl(d.fat)}</span>
+    </div>`).join(''):'<div style="color:var(--tx3);font-size:12px">Sem dados</div>';
+
+  // Tabela completa
+  const tbody=document.getElementById('gestaoBody');
+  tbody.innerHTML=orcs.length?[...orcs].sort((a,b)=>b.data.localeCompare(a.data)).map(o=>{
+    const stNorm=o.status==='rascunho'?'pendente':o.status;
+    const stMap={'aprovado':{l:'🟢 Aprovado',c:'c-gn'},'pendente':{l:'🟡 Pendente',c:'c-yl'},'cancelado':{l:'🔴 Cancelado',c:'c-rd'}};
+    const stG=stMap[stNorm]||stMap['pendente'];
+    const cls=stG.c;
+    const cmvCls=o.cmv>0?chc(o.cmv):'';
+    return `<tr>
+      <td class="mono">${o.numero}</td>
+      <td class="mono">${fd(o.data)}</td>
+      <td style="font-weight:600">${esc(o.empresa)}</td>
+      <td style="color:var(--tx2)">${esc(o.contato||'')}</td>
+      <td class="mono tr">${brl(o.faturamento)}</td>
+      <td class="mono tr" style="color:var(--tx2)">${brl(o.custo)}</td>
+      <td><span class="chip ${cmvCls}">${o.cmv>0?pct(o.cmv):'—'}</span></td>
+      <td><span class="chip ${cls}">${stG.l}</span></td>
+      <td><button class="btn btn-s btn-sm" onclick="verPDF('${o.id}')">📄</button></td>
+    </tr>`;
+  }).join(''):'<tr><td colspan="9" class="tc" style="padding:20px;color:var(--tx3)">Nenhum orçamento no período</td></tr>';
+}
+
+// ────────────────────────────────────────────────────────────
+//  TABELAS DE PREÇO
+// ────────────────────────────────────────────────────────────
+function renderMenu(q){
+  q=(q||'').toLowerCase();
+  const items=q?S.menu.filter(m=>m.item.toLowerCase().includes(q)):S.menu;
+  document.getElementById('menuCount').textContent=S.menu.length+' itens';
+  const tbody=document.getElementById('menuBody');
+  tbody.innerHTML=items.map((m,i)=>{
+    const c=findC(m.item);const est=c&&m.preco>0?(c/m.preco*100):null;
+    const ecls=est!==null?(est<=24?'c-gn':est<=28?'c-yl':'c-rd'):'';
+    return`<tr><td class="mono">${i+1}</td><td style="font-weight:500">${esc(m.item)}</td>
+    <td><span class="chip c-am" style="font-size:10px">${esc(m.categoria||'')}</span></td>
+    <td class="mono">${brl(m.preco)}</td>
+    <td>${est!==null?`<span class="chip ${ecls}">${pct(est)}</span>`:'<span style="color:var(--tx3)">—</span>'}</td>
+    <td><button class="btn btn-d btn-icon btn-sm" onclick="remMenu('${m.id}')">✕</button></td></tr>`;
+  }).join('');
+}
+
+function addMenuItem(){
+  const item=document.getElementById('mn-item').value.trim();
+  const cat=document.getElementById('mn-cat').value;
+  const preco=parseFloat(document.getElementById('mn-preco').value);
+  if(!item)return toast('Informe o item','err');
+  if(isNaN(preco)||preco<=0)return toast('Preço inválido','err');
+  S.menu=S.menu.filter(m=>norm(m.item)!==norm(item));
+  S.menu.push({id:uid(),item,categoria:cat,preco});ss();renderMenu('');
+  document.getElementById('mn-item').value='';document.getElementById('mn-preco').value='';
+  toast('Item adicionado','ok');
+}
+function remMenu(id){S.menu=S.menu.filter(m=>m.id!==id);ss();renderMenu('');}
+
+function renderHypera(q){
+  q=(q||'').toLowerCase();
+  const items=q?S.menuHypera.filter(m=>m.item.toLowerCase().includes(q)):S.menuHypera;
+  document.getElementById('hyperaCount').textContent=S.menuHypera.length+' itens';
+  const tbody=document.getElementById('hyperaBody');
+  tbody.innerHTML=items.map((m,i)=>{
+    const c=findC(m.item);const est=c&&m.preco>0?(c/m.preco*100):null;
+    const ecls=est!==null?(est<=24?'c-gn':est<=28?'c-yl':'c-rd'):'';
+    return`<tr><td class="mono">${i+1}</td><td style="font-weight:500">${esc(m.item)}</td>
+    <td class="mono">${brl(m.preco)}</td>
+    <td>${est!==null?`<span class="chip ${ecls}">${pct(est)}</span>`:'<span style="color:var(--tx3)">—</span>'}</td>
+    <td><button class="btn btn-d btn-icon btn-sm" onclick="remHypera(${i})">✕</button></td></tr>`;
+  }).join('');
+}
+function addHyperaItem(){
+  const item=document.getElementById('hy-item').value.trim();
+  const preco=parseFloat(document.getElementById('hy-preco').value);
+  if(!item)return toast('Informe o item','err');
+  if(isNaN(preco)||preco<=0)return toast('Preço inválido','err');
+  S.menuHypera=S.menuHypera.filter(m=>norm(m.item)!==norm(item));
+  S.menuHypera.push({item,preco});ss();renderHypera('');
+  document.getElementById('hy-item').value='';document.getElementById('hy-preco').value='';
+  toast('Item Hypera adicionado','ok');
+}
+function remHypera(i){S.menuHypera.splice(i,1);ss();renderHypera('');}
+
+function renderClientesEspeciais(){
+  const el=document.getElementById('clientesEspeciaisBody');
+  const items=S.clientesEspeciais.filter(c=>typeof c==='object');
+  if(!items.length){el.innerHTML='<div style="color:var(--tx3);font-size:12px;padding:8px 0">Nenhum cliente especial cadastrado além de HYPERA (automático)</div>';return;}
+  el.innerHTML=items.map((c,i)=>`<div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--bd)">
+    <span style="font-weight:600;font-size:13px">${esc(c.nome)}</span>
+    <span class="chip c-bl">${c.tabela}</span>
+    <button class="btn btn-d btn-sm" onclick="remClienteEspecial(${i})">Remover</button>
+  </div>`).join('');
+}
+function addClienteEspecial(){
+  const nome=document.getElementById('ce-nome').value.trim().toUpperCase();
+  const tabela=document.getElementById('ce-tabela').value;
+  if(!nome)return toast('Informe o nome do cliente','err');
+  S.clientesEspeciais=S.clientesEspeciais.filter(c=>typeof c==='string'||norm(c.nome)!==norm(nome));
+  S.clientesEspeciais.push({nome,tabela});
+  ss();renderClientesEspeciais();document.getElementById('ce-nome').value='';
+  toast('Cliente especial adicionado','ok');
+}
+function remClienteEspecial(i){
+  const objs=S.clientesEspeciais.filter(c=>typeof c==='object');
+  objs.splice(i,1);
+  S.clientesEspeciais=S.clientesEspeciais.filter(c=>typeof c==='string').concat(objs);
+  ss();renderClientesEspeciais();
+}
+
+// Importar tabela via CSV/JSON
+function importTabela(event,tipo){
+  const file=event.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      let items=[];
+      const txt=e.target.result.trim();
+      if(txt.startsWith('[')||txt.startsWith('{')){
+        // JSON
+        const data=JSON.parse(txt);
+        if(Array.isArray(data))items=data.map(r=>({item:(r.item||r.nome||'').trim(),categoria:r.categoria||'Outros',preco:parseFloat(r.preco||r.price||0)}));
+      } else {
+        // CSV
+        const lines=txt.split('\n').slice(1); // skip header
+        lines.forEach(l=>{
+          const cols=l.split(',').map(c=>c.replace(/"/g,'').trim());
+          if(cols[0]&&cols.length>=2){
+            items.push({item:cols[0],categoria:cols[1]||'Outros',preco:parseFloat(cols[tipo==='padrao'?2:1])||0});
+          }
+        });
+      }
+      if(!items.length)return toast('Nenhum item encontrado no arquivo','err');
+      let added=0,updated=0;
+      items.forEach(it=>{
+        if(!it.item||it.preco<=0)return;
+        if(tipo==='padrao'){
+          const idx=S.menu.findIndex(m=>norm(m.item)===norm(it.item));
+          if(idx>=0){S.menu[idx].preco=it.preco;updated++;}
+          else{S.menu.push({id:uid(),item:it.item,categoria:it.categoria||'Outros',preco:it.preco});added++;}
+        } else {
+          const idx=S.menuHypera.findIndex(m=>norm(m.item)===norm(it.item));
+          if(idx>=0){S.menuHypera[idx].preco=it.preco;updated++;}
+          else{S.menuHypera.push({item:it.item,preco:it.preco});added++;}
+        }
+      });
+      ss();
+      if(tipo==='padrao')renderMenu('');else renderHypera('');
+      toast(`Tabela importada: ${added} novos, ${updated} atualizados`,'ok');
+    }catch(err){toast('Erro ao importar: '+err.message,'err');}
+    event.target.value='';
+  };
+  reader.readAsText(file);
+}
+
+// ────────────────────────────────────────────────────────────
+//  CUSTOS
+// ────────────────────────────────────────────────────────────
+function renderCustos(q){
+  q=(q||'').toLowerCase();
+  const items=q?S.custos.filter(c=>c.item.toLowerCase().includes(q)):S.custos;
+  document.getElementById('custosCount').textContent=S.custos.length+' itens';
+  const tbody=document.getElementById('custosBody');
+  tbody.innerHTML=items.map((c,i)=>`<tr>
+    <td class="mono">${i+1}</td>
+    <td style="font-weight:500">${esc(c.item)}</td>
+    <td style="color:var(--tx2)">${esc(c.unidade||'un')}</td>
+    <td class="mono">${brl(c.custo)}</td>
+    <td class="mono" style="color:var(--tx3)">${c.updatedAt||'—'}</td>
+    <td><button class="btn btn-d btn-icon btn-sm" onclick="remCusto('${c.id}')">✕</button></td>
+  </tr>`).join('');
+}
+function addCusto(){
+  const item=document.getElementById('cs-item').value.trim();
+  const un=document.getElementById('cs-un').value.trim()||'un';
+  const custo=parseFloat(document.getElementById('cs-val').value);
+  if(!item)return toast('Informe o item','err');
+  if(isNaN(custo)||custo<0)return toast('Custo inválido','err');
+  S.custos=S.custos.filter(c=>norm(c.item)!==norm(item));
+  S.custos.push({id:uid(),item,unidade:un,custo,updatedAt:new Date().toISOString().split('T')[0]});
+  ss();renderCustos('');
+  ['cs-item','cs-un','cs-val'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  toast('Custo salvo','ok');
+}
+function remCusto(id){S.custos=S.custos.filter(c=>c.id!==id);ss();renderCustos('');}
+
+function importCustos(event){
+  const file=event.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      let added=0,updated=0;
+      const lines=e.target.result.split('\n').slice(1);
+      lines.forEach(l=>{
+        const cols=l.split(',').map(c=>c.replace(/"/g,'').trim());
+        if(!cols[0])return;
+        const item=cols[0],un=cols[1]||'un',custo=parseFloat(cols[2])||0;
+        if(!item||custo<=0)return;
+        const idx=S.custos.findIndex(c=>norm(c.item)===norm(item));
+        if(idx>=0){S.custos[idx].custo=custo;updated++;}
+        else{S.custos.push({id:uid(),item,unidade:un,custo,updatedAt:new Date().toISOString().split('T')[0]});added++;}
+      });
+      ss();renderCustos('');
+      toast(`Custos importados: ${added} novos, ${updated} atualizados`,'ok');
+    }catch(err){toast('Erro: '+err.message,'err');}
+    event.target.value='';
+  };
+  reader.readAsText(file);
+}
+
+// ────────────────────────────────────────────────────────────
+//  EXPORT CSV
+// ────────────────────────────────────────────────────────────
+function exportCSV(){
+  if(!S.orcamentos.length)return toast('Nenhum orçamento','err');
+  let csv='Número,Data,Cliente,Contato,Pessoas,Local,Faturamento,Custo,CMV%,Desconto,Total,Status,Tabela\n';
+  S.orcamentos.forEach(o=>{
+    const stCSV={'aprovado':'Pedido Aprovado','pendente':'Orçamento Pendente','rascunho':'Orçamento Pendente','cancelado':'Cancelado'}[o.status]||'Orçamento Pendente';
+    csv+=`"${o.numero}","${o.data}","${o.empresa}","${o.contato||''}","${o.pessoas||''}","${o.local||''}",${o.faturamento},${o.custo},${o.cmv.toFixed(2)},${o.desconto||0},${o.total},"${stCSV}","${o.tabelaEspecial||'Padrão'}"\n`;
+  });
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download='orcamentos-vg-'+new Date().toISOString().split('T')[0]+'.csv';
+  a.click();toast('CSV exportado!','ok');
+}
+
+// ────────────────────────────────────────────────────────────
+//  BADGES & HEADER
+// ────────────────────────────────────────────────────────────
+function updateBadges(){
+  document.getElementById('badgeHist').textContent=S.orcamentos.length;
+  document.getElementById('hdrCount').textContent=S.orcamentos.length+' orçamento'+(S.orcamentos.length!==1?'s':'');
+}
+
+// ────────────────────────────────────────────────────────────
+//  INIT — MIGRAR DADOS DO DASHBOARD ANTIGO
+// ────────────────────────────────────────────────────────────
+function init(){
+  ls();
+
+  // Se tabelas vazias, carregar do HTML original (dados embutidos)
+  if(!S.menu.length) S.menu = MENU_PADRAO;
+  if(!S.menuHypera.length) S.menuHypera = MENU_HYPERA;
+  if(!S.custos.length) S.custos = CUSTOS;
+  ss();
+
+  // Header date
+  document.getElementById('hdrDate').textContent = new Date().toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'short',year:'numeric'});
+
+  // Default form date
+  document.getElementById('cli-data').value = new Date().toISOString().split('T')[0];
+
+  // Gerar número inicial
+  gerarNumero();
+
+  updateBadges();
+  renderCatalogo();
+  recalc();
+}
+
+// ────────────────────────────────────────────────────────────
+//  DADOS INICIAIS (copiados do dashboard CMV v5)
+// ────────────────────────────────────────────────────────────
+const MENU_PADRAO = [
+  {id:'m1',item:'ÁGUA 1,5 ML',categoria:'Bebida',preco:15.8},{id:'m2',item:'ÁGUA 310 ML COM OU SEM GÁS',categoria:'Bebida',preco:8.75},{id:'m3',item:'ÁGUA DE COCO 200ML',categoria:'Bebida',preco:9.5},{id:'m4',item:'BANOFF',categoria:'Doce',preco:9.9},{id:'m5',item:'BEIJINHO',categoria:'Doce',preco:2.75},{id:'m6',item:'BOLO CASEIRO CONSULTAR SABORES',categoria:'Doce',preco:95.0},{id:'m7',item:'BOLO DE FESTA (CONSULTAR SABORES)',categoria:'Doce',preco:158.5},{id:'m8',item:'BOLO DE POTE 100 ML',categoria:'Doce',preco:13.0},{id:'m9',item:'BOLO DE POTE 180 GR',categoria:'Doce',preco:21.75},{id:'m10',item:'BRIGADEIRO/BICHO DE PÉ',categoria:'Doce',preco:2.75},{id:'m11',item:'BROWNIE',categoria:'Doce',preco:14.3},{id:'m12',item:'CAFÉ',categoria:'Bebida',preco:31.4},{id:'m13',item:'CHÁ INFUSÃO',categoria:'Bebida',preco:10.5},{id:'m14',item:'CHÁ SACHET',categoria:'Bebida',preco:25.0},{id:'m15',item:'CHOCOLATE QUENTE',categoria:'Bebida',preco:46.2},{id:'m16',item:'CROISSANT',categoria:'Salgado',preco:14.5},{id:'m17',item:'CROISSANT 4 QUEIJOS OU CHOCOLATE',categoria:'Salgado',preco:14.3},{id:'m18',item:'DADINHO DE TAPIOCA',categoria:'Salgado',preco:2.75},{id:'m19',item:'ENROLADINHO FOLHADO DE CREME',categoria:'Salgado',preco:9.9},{id:'m20',item:'ESFIHA',categoria:'Salgado',preco:14.5},{id:'m21',item:'FEEL GOOD LATA',categoria:'Bebida',preco:19.8},{id:'m22',item:'FEEL GOOD LITRO',categoria:'Bebida',preco:39.5},{id:'m23',item:'GELO',categoria:'Outros',preco:31.0},{id:'m24',item:'LEITE INTEGRAL OU DESNATADO',categoria:'Bebida',preco:27.8},{id:'m25',item:'LEITE VEGETAL',categoria:'Bebida',preco:89.8},{id:'m26',item:'LUA DE MEL',categoria:'Doce',preco:6.6},{id:'m27',item:'MINI BOLO',categoria:'Doce',preco:10.5},{id:'m28',item:'MINI BROWNIE',categoria:'Doce',preco:5.5},{id:'m29',item:'MINI CAROLINA',categoria:'Doce',preco:2.75},{id:'m30',item:'MINI CHAUSSON DE MAÇÃ',categoria:'Doce',preco:10.5},{id:'m31',item:'MINI CHURROS',categoria:'Doce',preco:3.0},{id:'m32',item:'MINI COXINHA OU MINI BOLINHA DE QUEIJO',categoria:'Salgado',preco:2.75},{id:'m33',item:'MINI CROISSANT',categoria:'Salgado',preco:5.5},{id:'m34',item:'MINI EMPADA',categoria:'Salgado',preco:5.3},{id:'m35',item:'MINI ENROLADO FOLHADO COM PASSAS',categoria:'Salgado',preco:9.2},{id:'m36',item:'MINI ESFIHA/MINI PIZZA',categoria:'Salgado',preco:5.3},{id:'m37',item:'MINI EMPANADA INTEGRAL',categoria:'Salgado',preco:5.9},{id:'m38',item:'MINI TORTINHA MARACUJÁ, LIMÃO, MORANGO',categoria:'Doce',preco:6.6},{id:'m39',item:'MINI LANCHE',categoria:'Salgado',preco:11.9},{id:'m40',item:'MINI LANCHE VEGANO NO PÃO INTEGRAL',categoria:'Salgado',preco:13.2},{id:'m41',item:'MINI WRAPP DE FRANGO COM REQUEIJÃO E ALFACE',categoria:'Salgado',preco:11.9},{id:'m42',item:'MINI PÃES (CENOURA,BRIOCHE,AUSTRALIANO,LEITE)',categoria:'Salgado',preco:4.95},{id:'m43',item:'MINI PANQUECA',categoria:'Doce',preco:4.95},{id:'m44',item:'MINI PÃO DE BATATA',categoria:'Salgado',preco:10.5},{id:'m45',item:'MINI PÃO DE QUEIJO (COQUETEL)',categoria:'Salgado',preco:2.2},{id:'m46',item:'MINI PÃO DE QUEIJO VEGANO',categoria:'Salgado',preco:2.95},{id:'m47',item:'MINI SONHO',categoria:'Doce',preco:6.6},{id:'m48',item:'MINI QUICHE',categoria:'Salgado',preco:5.3},{id:'m49',item:'MINI TORTA DE FRANGO OU ALHO PORÓ',categoria:'Salgado',preco:10.5},{id:'m50',item:'MUFFIN (CONSULTAR SABORES)',categoria:'Doce',preco:11.2},{id:'m51',item:'NUTS DE CASTANHAS 30 GR.',categoria:'Outros',preco:19.8},{id:'m52',item:'PÃO DE BATATA',categoria:'Salgado',preco:14.3},{id:'m53',item:'PÃO DE QUEIJO FORMAGIO MINEIRO (GRANDE)',categoria:'Salgado',preco:9.9},{id:'m54',item:'PÃO DE QUEIJO TRINO',categoria:'Salgado',preco:11.0},{id:'m55',item:'PASTEL INTEGRAL DE RICOTA',categoria:'Salgado',preco:15.8},{id:'m56',item:'POWER WHEY 250gr',categoria:'Outros',preco:17.6},{id:'m57',item:'MINI PUDIM DE LEITE',categoria:'Doce',preco:9.9},{id:'m58',item:'QUICHE 1 KG',categoria:'Salgado',preco:138.6},{id:'m59',item:'REFRIGERANTE 2 LITROS',categoria:'Bebida',preco:31.0},{id:'m60',item:'REFRIGERANTE LATA',categoria:'Bebida',preco:11.0},{id:'m61',item:'SALADA DE FRUTAS 100 GR',categoria:'Outros',preco:13.8},{id:'m62',item:'SALADAS MIX (VERDURAS E LEGUMES)',categoria:'Outros',preco:11.2},{id:'m63',item:'SANDUICHE DE METRO 1 METRO',categoria:'Salgado',preco:237.6},{id:'m64',item:'SOBREMESA SIMPLES',categoria:'Doce',preco:8.6},{id:'m65',item:'SUCO INTEGRAL GARRAFA 300ml',categoria:'Bebida',preco:17.0},{id:'m66',item:'SUCO INTEGRAL- LARANJA, MARACUJÁ E UVA',categoria:'Bebida',preco:31.7},{id:'m67',item:'SALADA COLORIDA- LEGUMES E VERDURAS',categoria:'Outros',preco:52.8},{id:'m68',item:'TARTELETE DOCE OU SALGADA',categoria:'Doce',preco:9.9},{id:'m69',item:'TODYNHO',categoria:'Bebida',preco:11.9},{id:'m70',item:'TORTA MOUSSE DE CHOCOLATE',categoria:'Doce',preco:158.4},{id:'m71',item:'TORTA DE FRANGO',categoria:'Salgado',preco:166.3},{id:'m72',item:'TOSCANA ACEBOLADA 100G',categoria:'Salgado',preco:13.2},{id:'m73',item:'TROUINHA DE FRANGO',categoria:'Salgado',preco:17.2},{id:'m74',item:'TRANCINHA DE CALABRESA',categoria:'Salgado',preco:17.2},{id:'m75',item:'COFFEE BREAK CLÁSSICO',categoria:'Combo',preco:77.0},{id:'m76',item:'COFFEE BREAK FIT',categoria:'Combo',preco:83.0},{id:'m77',item:'COFFEE BREAK VEGAN',categoria:'Combo',preco:83.0},{id:'m78',item:'ANIVERSARIO',categoria:'Combo',preco:94.0},{id:'m79',item:'MENU ALMOÇO NA EMPRESA',categoria:'Combo',preco:165.0},{id:'m80',item:'MENU FINGER FOODS',categoria:'Combo',preco:127.0},{id:'m81',item:'MINI PASTEIS',categoria:'Salgado',preco:2.75},{id:'m82',item:'IOGURTE',categoria:'Outros',preco:36.4},{id:'m83',item:'IOGURTE COM FRUTAS E GRANOLA 400 GR.',categoria:'Outros',preco:21.8},{id:'m84',item:'TAXA KIT DESCARTÁVEL',categoria:'Outros',preco:16.5},{id:'m85',item:'SALADA DE FRUTAS',categoria:'Outros',preco:13.8},{id:'m86',item:'BOLO CASEIRO',categoria:'Doce',preco:95.0},{id:'m87',item:'MINI COXINHA',categoria:'Salgado',preco:2.75},{id:'m88',item:'MINI ESFIHA',categoria:'Salgado',preco:5.3},{id:'m89',item:'CHÁ SACHET HORTELÃ',categoria:'Bebida',preco:10.5},{id:'m90',item:'BOLO DE BANANA',categoria:'Doce',preco:95.0},{id:'m91',item:'BOLO DE CENOURA COM CHOCOLATE',categoria:'Doce',preco:95.0},{id:'m92',item:'BOLO DE LARANJA',categoria:'Doce',preco:95.0},{id:'m93',item:'BOLO DE COCO GELADO',categoria:'Doce',preco:95.0},{id:'m94',item:'BOLO DE CHURROS',categoria:'Doce',preco:95.0},{id:'m95',item:'BOLO DE CHOCOLATE',categoria:'Doce',preco:95.0},{id:'m96',item:'BOLO DE LIMÃO',categoria:'Doce',preco:95.0},{id:'m97',item:'MINI PÃO DE QUEIJO',categoria:'Salgado',preco:2.2},{id:'m98',item:'SUCO DE LARANJA',categoria:'Bebida',preco:31.7},{id:'m99',item:'MINI PÃES DE BATATA',categoria:'Salgado',preco:10.5},{id:'m100',item:'MINI TORTINHA',categoria:'Doce',preco:6.6}
+];
+
+const MENU_HYPERA = [
+  {item:'ÁGUA 1,5 ML',preco:14.4},{item:'ÁGUA 310 ML COM OU SEM GÁS',preco:7.95},{item:'ÁGUA DE COCO 200ML',preco:8.64},{item:'BANOFF',preco:9.0},{item:'BEIJINHO',preco:2.5},{item:'BOLO CASEIRO CONSULTAR SABORES',preco:86.4},{item:'BOLO DE FESTA (CONSULTAR SABORES)',preco:144.0},{item:'BOLO DE POTE 100 ML',preco:11.8},{item:'BOLO DE POTE 180 GR',preco:19.8},{item:'BRIGADEIRO/BICHO DE PÉ',preco:2.5},{item:'BROWNIE',preco:13.0},{item:'CAFÉ',preco:32.6},{item:'CHÁ INFUSÃO',preco:9.6},{item:'CHÁ SACHET',preco:22.8},{item:'CHÁ SACHET HORTELÃ',preco:22.8},{item:'CHOCOLATE QUENTE',preco:42.0},{item:'CROISSANT',preco:13.2},{item:'CROISSANT 4 QUEIJOS OU CHOCOLATE',preco:13.0},{item:'DADINHO DE TAPIOCA',preco:2.5},{item:'ENROLADINHO FOLHADO DE CREME',preco:9.0},{item:'ESFIHA',preco:13.2},{item:'FEEL GOOD LATA',preco:18.0},{item:'FEEL GOOD LITRO',preco:36.0},{item:'GELO',preco:28.2},{item:'LEITE INTEGRAL OU DESNATADO',preco:25.2},{item:'LEITE VEGETAL',preco:81.6},{item:'LUA DE MEL',preco:6.0},{item:'MINI BOLO',preco:9.5},{item:'MINI BROWNIE',preco:5.0},{item:'MINI CAROLINA',preco:2.5},{item:'MINI CHAUSSON DE MAÇÃ',preco:9.6},{item:'MINI CHURROS',preco:2.7},{item:'MINI COXINHA OU MINI BOLINHA DE QUEIJO',preco:2.5},{item:'MINI COXINHA',preco:2.5},{item:'MINI CROISSANT',preco:5.0},{item:'MINI EMPADA',preco:4.8},{item:'MINI ENROLADO FOLHADO COM PASSAS',preco:8.4},{item:'MINI ESFIHA/MINI PIZZA',preco:4.8},{item:'MINI ESFIHA',preco:4.8},{item:'MINI EMPANADA INTEGRAL',preco:5.4},{item:'MINI TORTINHA MARACUJÁ, LIMÃO, MORANGO',preco:6.0},{item:'MINI TORTINHA',preco:6.0},{item:'MINI LANCHE',preco:10.8},{item:'MINI LANCHE VEGANO NO PÃO INTEGRAL',preco:12.0},{item:'MINI WRAPP DE FRANGO COM REQUEIJÃO E ALFACE',preco:10.8},{item:'MINI PÃES (CENOURA,BRIOCHE,AUSTRALIANO,LEITE)',preco:4.5},{item:'MINI PANQUECA',preco:4.5},{item:'MINI PÃO DE BATATA',preco:9.6},{item:'MINI PÃES DE BATATA',preco:9.6},{item:'MINI PÃO DE QUEIJO (COQUETEL)',preco:2.0},{item:'MINI PÃO DE QUEIJO',preco:2.0},{item:'MINI PÃO DE QUEIJO VEGANO',preco:2.7},{item:'MINI SONHO',preco:6.0},{item:'MINI QUICHE',preco:4.8},{item:'MINI TORTA DE FRANGO OU ALHO PORÓ',preco:9.6},{item:'MUFFIN (CONSULTAR SABORES)',preco:10.2},{item:'NUTS DE CASTANHAS 30 GR.',preco:18.0},{item:'PÃO DE BATATA',preco:13.0},{item:'PÃO DE QUEIJO FORMAGIO MINEIRO (GRANDE)',preco:9.0},{item:'PÃO DE QUEIJO TRINO',preco:10.0},{item:'PASTEL INTEGRAL DE RICOTA',preco:14.4},{item:'POWER WHEY 250gr',preco:16.0},{item:'MINI PUDIM DE LEITE',preco:9.0},{item:'QUICHE 1 KG',preco:126.0},{item:'REFRIGERANTE 2 LITROS',preco:28.2},{item:'REFRIGERANTE LATA',preco:10.08},{item:'SALADA DE FRUTAS 100 GR',preco:12.5},{item:'SALADA DE FRUTAS',preco:12.5},{item:'SALADAS MIX (VERDURAS E LEGUMES)',preco:10.2},{item:'SANDUICHE DE METRO 1 METRO',preco:216.0},{item:'SOBREMESA SIMPLES',preco:7.8},{item:'SUCO INTEGRAL GARRAFA 300ml',preco:15.6},{item:'SUCO INTEGRAL- LARANJA, MARACUJÁ E UVA',preco:28.8},{item:'SUCO DE LARANJA',preco:28.8},{item:'SALADA COLORIDA- LEGUMES E VERDURAS',preco:48.0},{item:'TARTELETE DOCE OU SALGADA',preco:9.0},{item:'TODYNHO',preco:10.8},{item:'TORTA MOUSSE DE CHOCOLATE',preco:144.0},{item:'TORTA DE FRANGO',preco:151.2},{item:'TOSCANA ACEBOLADA 100G',preco:12.0},{item:'TROUINHA DE FRANGO',preco:15.6},{item:'TRANCINHA DE CALABRESA',preco:15.6},{item:'COFFEE BREAK CLÁSSICO',preco:70.0},{item:'COFFEE BREAK FIT',preco:75.0},{item:'COFFEE BREAK VEGAN',preco:75.0},{item:'ANIVERSARIO',preco:85.0},{item:'MENU ALMOÇO NA EMPRESA',preco:150.0},{item:'MENU FINGER FOODS',preco:115.0},{item:'MINI PASTEIS',preco:2.5},{item:'IOGURTE',preco:33.1},{item:'IOGURTE COM FRUTAS E GRANOLA 400 GR.',preco:19.8},{item:'TAXA KIT DESCARTÁVEL',preco:15.0},{item:'KIT DESCARTÁVEL',preco:15.0},{item:'KIT MANTEIGA, GELEIA E REQUEIJÃO',preco:35.0},{item:'WAFFLE',preco:10.0},{item:'BOLINHO DE CARNE',preco:6.0},{item:'BOLO CASEIRO',preco:86.4},{item:'BOLO DE BANANA',preco:86.4},{item:'BOLO DE CENOURA COM CHOCOLATE',preco:86.4},{item:'BOLO DE LARANJA',preco:86.4},{item:'BOLO DE COCO GELADO',preco:86.4},{item:'BOLO DE CHURROS',preco:86.4},{item:'BOLO DE CHOCOLATE',preco:86.4},{item:'BOLO DE LIMÃO',preco:86.4}
+];
+
+const CUSTOS = [
+  {id:'c1',item:'ÁGUA 1,5 ML',unidade:'UNIDADE',custo:5.27,updatedAt:'2026-06-09'},{id:'c2',item:'ÁGUA 310 ML COM OU SEM GÁS',unidade:'UNIDADE',custo:2.92,updatedAt:'2026-06-09'},{id:'c3',item:'ÁGUA DE COCO 200ML',unidade:'UNIDADE',custo:3.17,updatedAt:'2026-06-09'},{id:'c4',item:'BANOFF',unidade:'UNIDADE',custo:3.3,updatedAt:'2026-06-09'},{id:'c5',item:'BEIJINHO',unidade:'UNIDADE',custo:0.92,updatedAt:'2026-06-09'},{id:'c6',item:'BOLO CASEIRO CONSULTAR SABORES',unidade:'UNIDADE',custo:31.67,updatedAt:'2026-06-09'},{id:'c7',item:'BOLO DE FESTA (CONSULTAR SABORES)',unidade:'UNIDADE',custo:52.83,updatedAt:'2026-06-09'},{id:'c8',item:'BOLO DE POTE 100 ML',unidade:'UNIDADE',custo:4.33,updatedAt:'2026-06-09'},{id:'c9',item:'BOLO DE POTE 180 GR',unidade:'UNIDADE',custo:7.25,updatedAt:'2026-06-09'},{id:'c10',item:'BRIGADEIRO/BICHO DE PÉ',unidade:'UNIDADE',custo:0.92,updatedAt:'2026-06-09'},{id:'c11',item:'BROWNIE',unidade:'UNIDADE',custo:4.77,updatedAt:'2026-06-09'},{id:'c12',item:'CAFÉ',unidade:'LITRO',custo:10.47,updatedAt:'2026-06-09'},{id:'c13',item:'CHÁ INFUSÃO',unidade:'LITRO',custo:3.5,updatedAt:'2026-06-09'},{id:'c14',item:'CHÁ SACHET',unidade:'UNIDADE',custo:8.33,updatedAt:'2026-06-09'},{id:'c15',item:'CHOCOLATE QUENTE',unidade:'LITRO',custo:15.4,updatedAt:'2026-06-09'},{id:'c16',item:'COBERTURA EXTRA',unidade:'UNIDADE',custo:15.4,updatedAt:'2026-06-09'},{id:'c17',item:'CROISSANT',unidade:'UNIDADE',custo:4.83,updatedAt:'2026-06-09'},{id:'c18',item:'CROISSANT 4 QUEIJOS OU CHOCOLATE',unidade:'UNIDADE',custo:4.77,updatedAt:'2026-06-09'},{id:'c19',item:'DADINHO DE TAPIOCA',unidade:'UNIDADE',custo:0.92,updatedAt:'2026-06-09'},{id:'c20',item:'ENROLADINHO FOLHADO DE CREME',unidade:'UNIDADE',custo:3.3,updatedAt:'2026-06-09'},{id:'c21',item:'ESFIHA',unidade:'UNIDADE',custo:4.83,updatedAt:'2026-06-09'},{id:'c22',item:'FEEL GOOD LATA',unidade:'UNIDADE',custo:6.6,updatedAt:'2026-06-09'},{id:'c23',item:'FEEL GOOD LITRO',unidade:'UNIDADE',custo:13.17,updatedAt:'2026-06-09'},{id:'c24',item:'GELO',unidade:'UNIDADE',custo:10.33,updatedAt:'2026-06-09'},{id:'c25',item:'LEITE INTEGRAL OU DESNATADO',unidade:'LITRO',custo:9.27,updatedAt:'2026-06-09'},{id:'c26',item:'LEITE VEGETAL',unidade:'LITRO',custo:29.93,updatedAt:'2026-06-09'},{id:'c27',item:'LUA DE MEL',unidade:'UNIDADE',custo:2.2,updatedAt:'2026-06-09'},{id:'c28',item:'MINI BOLO',unidade:'UNIDADE',custo:3.5,updatedAt:'2026-06-09'},{id:'c29',item:'MINI BROWNIE',unidade:'UNIDADE',custo:1.83,updatedAt:'2026-06-09'},{id:'c30',item:'MINI CAROLINA',unidade:'UNIDADE',custo:0.92,updatedAt:'2026-06-09'},{id:'c31',item:'MINI CHAUSSON DE MAÇÃ',unidade:'UNIDADE',custo:3.5,updatedAt:'2026-06-09'},{id:'c32',item:'MINI CHURROS',unidade:'UNIDADE',custo:1.0,updatedAt:'2026-06-09'},{id:'c33',item:'MINI COXINHA OU MINI BOLINHA DE QUEIJO',unidade:'UNIDADE',custo:0.92,updatedAt:'2026-06-09'},{id:'c34',item:'MINI CROISSANT',unidade:'UNIDADE',custo:1.83,updatedAt:'2026-06-09'},{id:'c35',item:'MINI EMPADA',unidade:'UNIDADE',custo:1.77,updatedAt:'2026-06-09'},{id:'c36',item:'MINI ENROLADO FOLHADO COM PASSAS',unidade:'UNIDADE',custo:3.07,updatedAt:'2026-06-09'},{id:'c37',item:'MINI ESFIHA/MINI PIZZA',unidade:'UNIDADE',custo:1.77,updatedAt:'2026-06-09'},{id:'c38',item:'MINI EMPANADA INTEGRAL',unidade:'UNIDADE',custo:1.97,updatedAt:'2026-06-09'},{id:'c39',item:'MINI TORTINHA MARACUJÁ, LIMÃO, MORANGO',unidade:'UNIDADE',custo:2.2,updatedAt:'2026-06-09'},{id:'c40',item:'MINI LANCHE',unidade:'UNIDADE',custo:3.97,updatedAt:'2026-06-09'},{id:'c41',item:'MINI LANCHE VEGANO NO PÃO INTEGRAL',unidade:'UNIDADE',custo:4.4,updatedAt:'2026-06-09'},{id:'c42',item:'MINI WRAPP DE FRANGO COM REQUEIJÃO E ALFACE',unidade:'UNIDADE',custo:3.97,updatedAt:'2026-06-09'},{id:'c43',item:'MINI PÃES (CENOURA,BRIOCHE,AUSTRALIANO,LEITE)',unidade:'UNIDADE',custo:1.65,updatedAt:'2026-06-09'},{id:'c44',item:'MINI PANQUECA',unidade:'UNIDADE',custo:1.65,updatedAt:'2026-06-09'},{id:'c45',item:'MINI PÃO DE BATATA',unidade:'UNIDADE',custo:3.5,updatedAt:'2026-06-09'},{id:'c46',item:'MINI PÃO DE QUEIJO (COQUETEL)',unidade:'UNIDADE',custo:0.73,updatedAt:'2026-06-09'},{id:'c47',item:'MINI PÃO DE QUEIJO VEGANO',unidade:'UNIDADE',custo:0.98,updatedAt:'2026-06-09'},{id:'c48',item:'MINI SONHO',unidade:'UNIDADE',custo:2.2,updatedAt:'2026-06-09'},{id:'c49',item:'MINI QUICHE',unidade:'UNIDADE',custo:1.77,updatedAt:'2026-06-09'},{id:'c50',item:'MINI TORTA DE FRANGO OU ALHO PORÓ',unidade:'UNIDADE',custo:3.5,updatedAt:'2026-06-09'},{id:'c51',item:'MUFFIN (CONSULTAR SABORES)',unidade:'UNIDADE',custo:3.73,updatedAt:'2026-06-09'},{id:'c52',item:'NUTS DE CASTANHAS 30 GR.',unidade:'PACOTE',custo:6.6,updatedAt:'2026-06-09'},{id:'c53',item:'PÃO DE BATATA',unidade:'UNIDADE',custo:4.77,updatedAt:'2026-06-09'},{id:'c54',item:'PÃO DE QUEIJO FORMAGIO MINEIRO (GRANDE)',unidade:'UNIDADE',custo:3.3,updatedAt:'2026-06-09'},{id:'c55',item:'PÃO DE QUEIJO TRINO',unidade:'UNIDADE',custo:3.67,updatedAt:'2026-06-09'},{id:'c56',item:'PASTEL INTEGRAL DE RICOTA',unidade:'UNIDADE',custo:5.27,updatedAt:'2026-06-09'},{id:'c57',item:'POWER WHEY 250gr',unidade:'UNIDADE',custo:5.87,updatedAt:'2026-06-09'},{id:'c58',item:'MINI PUDIM DE LEITE',unidade:'UNIDADE',custo:3.3,updatedAt:'2026-06-09'},{id:'c59',item:'QUICHE 1 KG',unidade:'UNIDADE',custo:46.2,updatedAt:'2026-06-09'},{id:'c60',item:'REFRIGERANTE 2 LITROS',unidade:'LITRO',custo:10.33,updatedAt:'2026-06-09'},{id:'c61',item:'REFRIGERANTE LATA',unidade:'LATA',custo:3.67,updatedAt:'2026-06-09'},{id:'c62',item:'SALADA DE FRUTAS 100 GR',unidade:'UNIDADE',custo:4.6,updatedAt:'2026-06-09'},{id:'c63',item:'SALADAS MIX (VERDURAS E LEGUMES)',unidade:'UNIDADE',custo:3.73,updatedAt:'2026-06-09'},{id:'c64',item:'SANDUICHE DE METRO 1 METRO',unidade:'UNIDADE',custo:79.2,updatedAt:'2026-06-09'},{id:'c65',item:'SOBREMESA SIMPLES',unidade:'UNIDADE',custo:2.87,updatedAt:'2026-06-09'},{id:'c66',item:'SUCO INTEGRAL GARRAFA 300ml',unidade:'UNIDADE',custo:5.67,updatedAt:'2026-06-09'},{id:'c67',item:'SUCO INTEGRAL- LARANJA, MARACUJÁ E UVA',unidade:'LITRO',custo:10.57,updatedAt:'2026-06-09'},{id:'c68',item:'SALADA COLORIDA- LEGUMES E VERDURAS',unidade:'UNIDADE',custo:17.6,updatedAt:'2026-06-09'},{id:'c69',item:'TARTELETE DOCE OU SALGADA',unidade:'UNIDADE',custo:3.3,updatedAt:'2026-06-09'},{id:'c70',item:'TODYNHO',unidade:'UNIDADE',custo:3.97,updatedAt:'2026-06-09'},{id:'c71',item:'TORTA MOUSSE DE CHOCOLATE',unidade:'UNIDADE',custo:52.8,updatedAt:'2026-06-09'},{id:'c72',item:'TORTA DE FRANGO',unidade:'UNIDADE',custo:55.43,updatedAt:'2026-06-09'},{id:'c73',item:'TOSCANA ACEBOLADA 100G',unidade:'UNIDADE',custo:4.4,updatedAt:'2026-06-09'},{id:'c74',item:'TROUINHA DE FRANGO',unidade:'UNIDADE',custo:5.73,updatedAt:'2026-06-09'},{id:'c75',item:'TRANCINHA DE CALABRESA',unidade:'UNIDADE',custo:5.73,updatedAt:'2026-06-09'},{id:'c81',item:'COFFEE BREAK CLÁSSICO',unidade:'UNIDADE',custo:25.67,updatedAt:'2026-06-09'},{id:'c82',item:'COFFEE BREAK FIT',unidade:'UNIDADE',custo:27.67,updatedAt:'2026-06-09'},{id:'c83',item:'COFFEE BREAK VEGAN',unidade:'UNIDADE',custo:27.67,updatedAt:'2026-06-09'},{id:'c84',item:'ANIVERSARIO',unidade:'UNIDADE',custo:31.33,updatedAt:'2026-06-09'},{id:'c85',item:'MENU ALMOÇO NA EMPRESA',unidade:'UNIDADE',custo:55.0,updatedAt:'2026-06-09'},{id:'c86',item:'MENU FINGER FOODS',unidade:'UNIDADE',custo:42.33,updatedAt:'2026-06-09'},{id:'c87',item:'MINI PASTEIS',unidade:'UNIDADE',custo:0.92,updatedAt:'2026-06-09'},{id:'c88',item:'IOGURTE',unidade:'LITRO',custo:12.13,updatedAt:'2026-06-09'},{id:'c89',item:'IOGURTE COM FRUTAS E GRANOLA 400 GR.',unidade:'UNIDADE',custo:7.27,updatedAt:'2026-06-09'},{id:'c90',item:'TAXA KIT DESCARTÁVEL',unidade:'UNIDADE',custo:5.5,updatedAt:'2026-06-09'},{id:'c91',item:'SALADA DE FRUTAS',unidade:'UNIDADE',custo:4.6,updatedAt:'2026-06-09'},{id:'c92',item:'BOLO CASEIRO',unidade:'UNIDADE',custo:31.67,updatedAt:'2026-06-09'},{id:'c93',item:'MINI COXINHA',unidade:'UNIDADE',custo:0.92,updatedAt:'2026-06-09'},{id:'c94',item:'MINI ESFIHA',unidade:'UNIDADE',custo:1.77,updatedAt:'2026-06-09'},{id:'c95',item:'MINI TORTINHA',unidade:'UNIDADE',custo:2.2,updatedAt:'2026-06-09'},{id:'c96',item:'CHÁ SACHET HORTELÃ',unidade:'LITRO',custo:3.5,updatedAt:'2026-06-09'},{id:'c97',item:'BOLO DE BANANA',unidade:'UNIDADE',custo:31.67,updatedAt:'2026-06-09'},{id:'c98',item:'BOLO DE CENOURA COM CHOCOLATE',unidade:'UNIDADE',custo:31.67,updatedAt:'2026-06-09'},{id:'c99',item:'BOLO DE LARANJA',unidade:'UNIDADE',custo:31.67,updatedAt:'2026-06-09'},{id:'c100',item:'BOLO DE COCO GELADO',unidade:'UNIDADE',custo:31.67,updatedAt:'2026-06-09'},{id:'c101',item:'BOLO DE CHURROS',unidade:'UNIDADE',custo:31.67,updatedAt:'2026-06-09'},{id:'c102',item:'BOLO DE CHOCOLATE',unidade:'UNIDADE',custo:31.67,updatedAt:'2026-06-09'},{id:'c103',item:'BOLO DE LIMÃO',unidade:'UNIDADE',custo:31.67,updatedAt:'2026-06-09'},{id:'c104',item:'MINI PÃO DE QUEIJO',unidade:'UNIDADE',custo:0.73,updatedAt:'2026-06-09'},{id:'c105',item:'SUCO DE LARANJA',unidade:'LITRO',custo:10.57,updatedAt:'2026-06-09'},{id:'c106',item:'MINI PÃES DE BATATA',unidade:'UNIDADE',custo:3.5,updatedAt:'2026-06-09'}
+];
+
+// BOOT
+init();
+</script>
+</body>
+</html>
